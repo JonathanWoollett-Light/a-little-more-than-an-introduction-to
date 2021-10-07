@@ -1,15 +1,15 @@
-from manimlib.imports import *
+from manim import *
 
 # Episodes are numbered with major and minor numbers (e.g. 1.x covers dense nets (func names being 1_0,1_1,etc.), 2.x covers conv nets)
 # Utility functions are defined just before the 1st episode in which they are used
 
 # Gets title screen
 def get_title_screen(episodeNumber,episodeDescription):
-    super_title = TextMobject("A little more than an introduction to:")
+    super_title = Text("A little more than an introduction to:")
     super_title.scale(0.75)
-    title = TextMobject("Neural Networks")
+    title = Text("Neural Networks")
     title.scale(2)
-    subtitle = TextMobject("Episode "+str(episodeNumber)+": "+episodeDescription)
+    subtitle = Text("Episode "+str(episodeNumber)+": "+episodeDescription)
     subtitle.scale(0.75)
     title_scene = VGroup(super_title,title,subtitle)
     title_scene.arrange(DOWN,buff=1)
@@ -23,8 +23,8 @@ def get_xor_net(text_scale, vertical_spacing, horizontal_spacing):
         hidden = VGroup(*[Circle(radius=0.15,stroke_color=WHITE,stroke_width=1) for i in range(0,3)])
         hidden.arrange(DOWN,buff=vertical_spacing)
         outputs = VGroup(
-            VGroup(Circle(radius=0.15,stroke_color=WHITE,stroke_width=1),TextMobject("False")),
-            VGroup(Circle(radius=0.15,stroke_color=WHITE,stroke_width=1),TextMobject("True"))
+            VGroup(Circle(radius=0.15,stroke_color=WHITE,stroke_width=1),Text("False")),
+            VGroup(Circle(radius=0.15,stroke_color=WHITE,stroke_width=1),Text("True"))
         )
         for group in outputs:
             group[1].scale(text_scale)
@@ -43,7 +43,7 @@ def get_xor_net(text_scale, vertical_spacing, horizontal_spacing):
 
 # Creates a box of a bunch of equations
 def get_equations(equations,wheres=[],buffer=1,scale=0.5,where_scale=0.8):
-    equation_box = [TexMobject(str(i+1)+r". \hspace{6pt}",eqStr) for (i,eqStr) in enumerate(equations)]
+    equation_box = [MathTex(str(i+1)+r". \hspace{6pt}",eqStr) for (i,eqStr) in enumerate(equations)]
 
     if len(wheres) > 0:
         wheresList = [r"Where: \hspace{6pt}"]
@@ -52,7 +52,7 @@ def get_equations(equations,wheres=[],buffer=1,scale=0.5,where_scale=0.8):
             if i != len(wheres)-1: # For all but last element add `,` after
                 wheresList.append(", ")
         
-        wheresTex = TexMobject(*wheresList)
+        wheresTex = MathTex(*wheresList)
         wheresTex.scale(where_scale)
         equation_box.append(wheresTex)
 
@@ -99,33 +99,32 @@ class ep1_0(Scene):
         self.play(Uncreate(title_scene))
 
     def play_note_on_3b3b1(self):
-        text = TextMobject("First check out 3Blue1Browns neural network series before watching this.")
+        text = Text("First check out 3Blue1Browns neural network series before watching this.")
         text.scale(0.5)
         img = ImageMobject("3b1b nets.png")
-        img.scale(1.5)
+        # img.scale(1)
 
-        text.next_to(img,TOP)
-        text.shift(DOWN / 2)
+        text.next_to(img,UP)
 
         self.play(Write(text),FadeIn(img))
 
         self.wait(SCENE_WAIT)
 
-        self.play(Uncreate(text),Uncreate(img))
+        self.play(Unwrite(text),FadeOut(img))
 
     def play_mnist_net(self,scale=0.5):
-        top = [Circle(radius=0.15,stroke_color=WHITE,stroke_width=1) for i in range(0,10)]
+        UP = [Circle(radius=0.15,stroke_color=WHITE,stroke_width=1) for i in range(0,10)]
         bottom = [Circle(radius=0.15,stroke_color=WHITE,stroke_width=1) for i in range(0,10)]
-        inputs = VGroup(*top,TexMobject("\\vdots"),*bottom)
+        inputs = VGroup(*UP,MathTex("\\vdots"),*bottom)
         inputs.arrange(DOWN)
-        inputs = VGroup(TextMobject("784"),Brace(inputs,LEFT),inputs)
+        inputs = VGroup(Text("784"),Brace(inputs,LEFT),inputs)
         inputs.arrange()
 
         hidden1 = VGroup(*[Circle(radius=0.15,stroke_color=WHITE,stroke_width=1) for i in range(0,16)])
         hidden1.arrange(DOWN)
         hidden2 = hidden1.copy()
 
-        outputs = VGroup(*[VGroup(Circle(radius=0.15,stroke_color=WHITE,stroke_width=1),TextMobject(i)) for i in range(0,10)])
+        outputs = VGroup(*[VGroup(Circle(radius=0.15,stroke_color=WHITE,stroke_width=1),Text(str(i))) for i in range(0,10)])
         for group in outputs:
             group.arrange()
         
@@ -134,20 +133,20 @@ class ep1_0(Scene):
         neurons = VGroup(inputs,hidden1,hidden2,outputs)
         neurons.arrange(buff=2)
 
-        top_edges = VGroup(*[Line(n1.get_center(),n2.get_center(),stroke_width=0.2) for n1 in top for n2 in hidden1])
+        UP_edges = VGroup(*[Line(n1.get_center(),n2.get_center(),stroke_width=0.2) for n1 in UP for n2 in hidden1])
         bottom_edges = VGroup(*[Line(n1.get_center(),n2.get_center(),stroke_width=0.2) for n1 in bottom for n2 in hidden1])
 
         hidden_edges = VGroup(*[Line(n1.get_center(),n2.get_center(),stroke_width=0.2) for n1 in hidden1 for n2 in hidden2])
 
         output_edges = VGroup(*[Line(n1.get_center(),n2[0].get_center(),stroke_width=0.2) for n1 in hidden2 for n2 in outputs])
 
-        connections = VGroup(top_edges,bottom_edges,hidden_edges,output_edges)
+        connections = VGroup(UP_edges,bottom_edges,hidden_edges,output_edges)
         #net.scale(0.4)
 
         mnist_net = VGroup(neurons,connections)        
         mnist_net.scale(scale)
 
-        mnist_text = TextMobject("MNIST")
+        mnist_text = Text("MNIST")
         scene = VGroup(mnist_text,mnist_net)
         scene.arrange(DOWN)
 
@@ -162,7 +161,7 @@ class ep1_0(Scene):
         xor_net.move_to(mnist_net.get_center())
         xor_net.scale(scale)
 
-        xor_text = TextMobject("XOR")
+        xor_text = Text("XOR")
         xor_text.move_to(mnist_text.get_center())
 
         xor = VGroup(xor_text,xor_net)
@@ -199,11 +198,11 @@ class ep1_0(Scene):
             Matrix([[1,1]],h_buff=0.5)
         )
         inputs.arrange(DOWN)
-        inputs = VGroup(TextMobject("Inputs"),inputs)
+        inputs = VGroup(Text("Inputs"),inputs)
         inputs.arrange(DOWN)
 
-        false = VGroup(Matrix([[1,0]],h_buff=0.5),TextMobject("False"))
-        true = VGroup(Matrix([[0,1]],h_buff=0.5),TextMobject("True"))
+        false = VGroup(Matrix([[1,0]],h_buff=0.5),Text("False"))
+        true = VGroup(Matrix([[0,1]],h_buff=0.5),Text("True"))
 
         outputs = VGroup(
             false.copy(),
@@ -214,11 +213,11 @@ class ep1_0(Scene):
         for output in outputs:
             output.arrange()
         outputs.arrange(DOWN)
-        outputs = VGroup(TextMobject("Outputs"),outputs)
+        outputs = VGroup(Text("Outputs"),outputs)
         outputs.arrange(DOWN)
 
-        labels = Matrix([0,1,1,0],v_buff=1.15)
-        labels = VGroup(TextMobject("Labels"),labels)
+        labels = Matrix(matrix=[[0,1,1,0]],v_buff=1.15)
+        labels = VGroup(Text("Labels"),labels)
         labels.arrange(DOWN)
 
         moved_xor = xor_net.copy()
@@ -260,53 +259,53 @@ class ep1_0(Scene):
 
         # Sets up vague value matricies
         # -----------------------------
-        z1 = TexMobject(r"""
+        z1 = MathTex(r"""
         \begin{bmatrix}
             z_{1,1} \\[6pt] z_{1,2} \\[6pt] z_{1,3}
         \end{bmatrix}
         """)
-        z2 = TexMobject(r"""
+        z2 = MathTex(r"""
         \begin{bmatrix}
             z_{2,1} \\[6pt] z_{2,2}
         \end{bmatrix}
         """)
 
-        a1 = TexMobject(r"""
+        a1 = MathTex(r"""
         \begin{bmatrix}
             a_{1,1} \\[6pt] a_{1,2}
         \end{bmatrix}
         """)
-        a2 = TexMobject(r"""
+        a2 = MathTex(r"""
         \begin{bmatrix}
             a_{2,1} \\[6pt] a_{2,2} \\[6pt] a_{2,3}
         \end{bmatrix}
         """)
-        a3 = TexMobject(r"""
+        a3 = MathTex(r"""
         \begin{bmatrix}
             a_{3,1} \\[6pt] a_{3,2}
         \end{bmatrix}
         """)
 
-        w1 = TexMobject(r"""
+        w1 = MathTex(r"""
         \begin{bmatrix}
             w_{1,1,1} & w_{1,1,2} \\[6pt]
             w_{1,2,1} & w_{1,2,2} \\[6pt]
             w_{1,3,1} & w_{1,3,2}
         \end{bmatrix}
         """,color=RED)
-        w2 = TexMobject(r"""
+        w2 = MathTex(r"""
         \begin{bmatrix}
             w_{2,1,1} & w_{2,1,2} & w_{2,1,3} \\[6pt]
             w_{2,2,1} & w_{2,2,2} & w_{2,2,3}
         \end{bmatrix}
         """,color=RED)
 
-        b1 = TexMobject(r"""
+        b1 = MathTex(r"""
         \begin{bmatrix}
             b_{1,1} \\[6pt] b_{1,2} \\[6pt] b_{1,3}
         \end{bmatrix}
         """,color=BLUE)
-        b2 = TexMobject(r"""
+        b2 = MathTex(r"""
         \begin{bmatrix}
             b_{2,1} \\[6pt] b_{2,2}
         \end{bmatrix}
@@ -319,7 +318,7 @@ class ep1_0(Scene):
         n2 = VGroup(b2,z2,a3)
         n2.arrange()
 
-        # Scale and align all matricies
+        # Scale and align all matrices
         # -----------------------------
         values = VGroup(a1,w1,n1,w2,n2)
         values.scale(0.4)
@@ -327,11 +326,11 @@ class ep1_0(Scene):
 
         # Sets scene arrangement
         # -----------------------------
-        title = TextMobject("What values are we looking at?")
+        title = Text("What values are we looking at?")
         scene = VGroup(title,values,wide_xor_net)
         scene.arrange(DOWN,buff=1)
 
-        # Horizontally aligns matricies over respective network sections
+        # Horizontally aligns matrices over respective network sections
         # -----------------------------
         # Doing horizontal alignment manually since can't figure out `align_to`
         a1.move_to([inputs.get_x(),a1.get_y(),a1.get_z()])
@@ -373,7 +372,7 @@ class ep1_0(Scene):
         # Gets small XOR net
         mid_xor_net = get_xor_net(0.5,0.25,2)
 
-        # Shifts matricies up
+        # Shifts matrices up
         moved_values = values.copy()
         moved_values.shift(1.5*UP)
 
@@ -381,7 +380,7 @@ class ep1_0(Scene):
         mid_xor_net.move_to(wide_xor_net.get_center())
         mid_xor_net.shift(1*DOWN)
 
-        # Transforms to new matricies and new net
+        # Transforms to new matrices and new net
         self.play(
             ReplacementTransform(wide_xor_net,mid_xor_net),
             ReplacementTransform(values,moved_values)
@@ -392,7 +391,7 @@ class ep1_0(Scene):
             r"z^l = w^l a^l + b^l"
         ])
 
-        title = TextMobject("Foreprop Equations")
+        title = Text("Foreprop Equations")
         title.move_to(side_equations.get_center()+3*UP)
 
         self.play(Write(title))
@@ -421,33 +420,33 @@ class ep1_0(Scene):
         output_edges = wide_xor_net[1][1]
 
         # Sets up matricies with values
-        a1 = Matrix(["0","1"],h_buff=1.2)
-        a2 = Matrix(["0.47...","0.62...","0.52..."],h_buff=1.2)
-        a3 = Matrix(["0.62...","0.53..."],h_buff=1.2)
+        a1 = Matrix([["0"],["1"]],h_buff=1.2)
+        a2 = Matrix([["0.47..."],["0.62..."],["0.52..."]],h_buff=1.2)
+        a3 = Matrix([["0.62..."],["0.53..."]],h_buff=1.2)
 
-        z1 = Matrix(["-0.1","0.5","0.1"],h_buff=1.2)
-        z2 = Matrix(["0.49...","0.12..."],h_buff=1.5)
+        z1 = Matrix([["-0.1"],["0.5"],["0.1"]],h_buff=1.2)
+        z2 = Matrix([["0.49..."],["0.12..."]],h_buff=1.5)
 
-        w1 = TexMobject(r"""
+        w1 = MathTex(r"""
         \begin{bmatrix}
             -0.2 & 0.2 \\[6pt]
             0.1 & 0.2 \\[6pt]
             0.5 & -0.5
         \end{bmatrix}
         """,color=RED)
-        w2 = TexMobject(r"""
+        w2 = MathTex(r"""
         \begin{bmatrix}
             -0.2 & 0.2 & 0.5 \\[6pt]
             0.1 & 0.2 & 0.3
         \end{bmatrix}
         """,color=RED)
 
-        b1 = TexMobject(r"""
+        b1 = MathTex(r"""
         \begin{bmatrix}
             -0.3 \\[6pt] 0.3 \\[6pt] 0.6
         \end{bmatrix}
         """,color=BLUE)
-        b2 = TexMobject(r"""
+        b2 = MathTex(r"""
         \begin{bmatrix}
             0.2 \\[6pt] -0.2
         \end{bmatrix}
@@ -455,7 +454,7 @@ class ep1_0(Scene):
 
         # Sets up matricies
         net_values_precise = VGroup(a1,w1,b1,z1,a2,w2,b2,z2,a3)
-        net_values_precise.scale(store_scale) # Scales up matricies
+        net_values_precise.scale(store_scale) # Scales up matrices
         net_values_precise.arrange()
         net_values_precise.move_to(moved_values.get_center())
 
@@ -466,7 +465,7 @@ class ep1_0(Scene):
         eqZ = get_highlight_box(side_equations[0][1])
         eqA = get_highlight_box(side_equations[0][0])
 
-        foreprop_header = TextMobject("Foreprogation")
+        foreprop_header = Text("Foreprogation")
         foreprop_header.shift(3*UP)
 
         # Transforms to precise values (leaving out a and z values)
@@ -546,10 +545,10 @@ class ep1_0(Scene):
         # Sets z1 calculation
         z1_calculation = VGroup(
             z1_z1_scaled,
-            TexMobject("="),
+            MathTex("="),
             z1_a1_scaled,
             w1_scaled,
-            TexMobject("+"),
+            MathTex("+"),
             b1_scaled
         )
         z1_calculation.arrange()
@@ -594,10 +593,10 @@ class ep1_0(Scene):
 
         a2_calculation = VGroup(
             a2_a2_scaled,
-            TexMobject("="),
-            TexMobject(r"\sigma \Big("),
+            MathTex("="),
+            MathTex(r"\sigma \Big("),
             a2_z1_scaled,
-            TexMobject(r"\Big)")
+            MathTex(r"\Big)")
         )
         a2_calculation.arrange()
 
@@ -655,10 +654,10 @@ class ep1_0(Scene):
 
         z2_calculation = VGroup(
             z2_z2_scaled,
-            TexMobject("="),
+            MathTex("="),
             w2_scaled,
             z2_a2_scaled,
-            TexMobject("+"),
+            MathTex("+"),
             b2_scaled
         )
         z2_calculation.arrange()
@@ -705,10 +704,10 @@ class ep1_0(Scene):
 
         a3_calculation = VGroup(
             a3_scaled,
-            TexMobject("="),
-            TexMobject(r"\sigma \Big("),
+            MathTex("="),
+            MathTex(r"\sigma \Big("),
             a3_z2_scaled,
-            TexMobject(r"\Big)")
+            MathTex(r"\Big)")
         )
         a3_calculation.arrange()
 
@@ -729,7 +728,7 @@ class ep1_0(Scene):
         # Done
         # ------------------------------------------------------------------------------------
 
-        self.play(Write(TextMobject("Done.")))
+        self.play(Write(Text("Done.")))
 
         self.wait(SCENE_WAIT)
 
@@ -783,7 +782,7 @@ class ep1_1(Scene):
             r"\frac{\partial C}{\partial w^l} = \delta^l (a^l)^T"
         ], wheres=[r"\delta^l = \frac{\partial C}{\partial z^l}"],scale=0.3)
 
-        title = TextMobject("Backpropagation")
+        title = Text("Backpropagation")
         title.move_to(side_equations.get_center()+3*UP)
 
         self.play(Write(title))
@@ -799,14 +798,14 @@ class ep1_1(Scene):
 
         # Sets up matricies with values
         # ----------------------------------------------------------
-        a1 = Matrix(["0","1"],h_buff=1.2)
-        a2 = Matrix(["0.47...","0.62...","0.52..."],h_buff=1.2)
-        a3 = Matrix(["0.62...","0.53..."],h_buff=1.2)
+        a1 = Matrix([["0"],["1"]],h_buff=1.2)
+        a2 = Matrix([["0.47..."],["0.62..."],["0.52..."]],h_buff=1.2)
+        a3 = Matrix([["0.62..."],["0.53..."]],h_buff=1.2)
 
-        z1 = Matrix(["-0.1","0.5","0.1"],h_buff=1.2)
-        z2 = Matrix(["0.29...","0.33..."],h_buff=1.5)
+        z1 = Matrix([["-0.1"],["0.5"],["0.1"]],h_buff=1.2)
+        z2 = Matrix([["0.29..."],["0.33..."]],h_buff=1.5)
 
-        w1 = TexMobject(r"""
+        w1 = MathTex(r"""
         \begin{bmatrix}
             -0.2 & 0.2 \\[6pt]
             0.1 & 0.2 \\[6pt]
@@ -818,7 +817,7 @@ class ep1_1(Scene):
             ["0","0.00..."],
             ["0","0.00..."]
         ],h_buff=2).set_color(GREEN)
-        w2 = TexMobject(r"""
+        w2 = MathTex(r"""
         \begin{bmatrix}
             -0.2 & 0.2 & 0.5 \\[6pt]
             0.1 & 0.2 & 0.3
@@ -829,18 +828,18 @@ class ep1_1(Scene):
             ["-0.05...","-0.07...","-0.06..."]
         ],h_buff=2).set_color(GREEN)
 
-        b1 = TexMobject(r"""
+        b1 = MathTex(r"""
         \begin{bmatrix}
             -0.3 \\[6pt] 0.3 \\[6pt] 0.6
         \end{bmatrix}
         """,color=BLUE)
-        b1e = Matrix(["-0.01...","0.00...","0.00..."]).set_color(GREEN)
-        b2 = TexMobject(r"""
+        b1e = Matrix([["-0.01..."],["0.00..."],["0.00..."]]).set_color(GREEN)
+        b2 = MathTex(r"""
         \begin{bmatrix}
             0.2 \\[6pt] -0.2
         \end{bmatrix}
         """,color=BLUE)
-        b2e = Matrix(["0.14...","-0.11..."]).set_color(GREEN)
+        b2e = Matrix([["0.14..."],["-0.11..."]]).set_color(GREEN)
 
         n1 = VGroup(w1e,b1,b1e,z1,a2)
         n2 = VGroup(w2e,b2,b2e,z2,a3)
@@ -862,7 +861,7 @@ class ep1_1(Scene):
         a3_scaled = a3.copy()
         a3_scaled.scale(1/store_scale)
 
-        equation = TexMobject(r"\delta^L", "=", r"\nabla_a C", r"\odot", r"A'(z^L)")
+        equation = MathTex(r"\delta^L", "=", r"\nabla_a C", r"\odot", r"A'(z^L)")
 
         current = VGroup(a3_scaled,equation)
         current.arrange(DOWN)
@@ -901,18 +900,18 @@ class ep1_1(Scene):
         # Sets equation hightlight
         self.play(Write(outErrorEqSelected))
 
-        target = Matrix(["0","1"],h_buff=1)
+        target = Matrix([["0"],["1"]],h_buff=1)
 
         # Result
-        output_cz_derivative = Matrix(["0.14...","-0.11..."],h_buff=1.75)
+        output_cz_derivative = Matrix([["0.14..."],["-0.11..."]],h_buff=1.75)
 
         # Sets calculation
         calculation = VGroup(
             output_cz_derivative.copy(),
-            TexMobject("="),
-            VGroup(a3_scaled.copy(),TexMobject("-"),target),
-            TexMobject(r"\odot"),
-            VGroup(TexMobject(r"\Bigg("),a3_scaled.copy(),TexMobject(r"\odot"),TexMobject(r"\bigg(1-"),a3_scaled.copy(),TexMobject(r"\bigg)"),TexMobject(r"\Bigg)"))
+            MathTex("="),
+            VGroup(a3_scaled.copy(),MathTex("-"),target),
+            MathTex(r"\odot"),
+            VGroup(MathTex(r"\Bigg("),a3_scaled.copy(),MathTex(r"\odot"),MathTex(r"\bigg(1-"),a3_scaled.copy(),MathTex(r"\bigg)"),MathTex(r"\Bigg)"))
         )
         calculation.scale(0.4)
         calculation[2].arrange(buff=0.1)
@@ -955,7 +954,7 @@ class ep1_1(Scene):
         self.wait()
 
         
-        sigmoid_derivative = TexMobject(r"\sigma '(z)",r"= \sigma (z) (1- \sigma (z))","= a(1-a)")
+        sigmoid_derivative = MathTex(r"\sigma '(z)",r"= \sigma (z) (1- \sigma (z))","= a(1-a)")
         sigmoid_derivative.scale(0.6)
         sigmoid_derivative[2].move_to([
             sigmoid_derivative[1].get_x()-sigmoid_derivative[1].get_width()/2+sigmoid_derivative[2].get_width()/2,
@@ -971,20 +970,20 @@ class ep1_1(Scene):
         self.wait(3)
 
         # Left bit
-        output_az_derivative = Matrix(["0.62...","-0.46..."],h_buff=1.75)
+        output_az_derivative = Matrix([["0.62..."],["-0.46..."]],h_buff=1.75)
         output_az_derivative.scale(0.4)
         output_az_derivative.move_to(calculation[2].get_center())
         self.play(ReplacementTransform(calculation[2],output_az_derivative))
         self.wait()
 
         # Right bit
-        output_ca_derivative_halfway = Matrix(["-0.37...","-0.46..."],h_buff=1.75)
+        output_ca_derivative_halfway = Matrix([["-0.37..."],["-0.46..."]],h_buff=1.75)
         output_ca_derivative_halfway.scale(0.4)
         output_ca_derivative_halfway.move_to(calculation[4][3:6].get_center())
         self.play(ReplacementTransform(calculation[4][3:6],output_ca_derivative_halfway))
         self.wait()
 
-        output_ca_derivative = Matrix(["0.23...","0.24.."],h_buff=1.75)
+        output_ca_derivative = Matrix([["0.23..."],["0.24.."]],h_buff=1.75)
         output_ca_derivative.scale(0.4)
         output_ca_derivative.move_to(calculation[4].get_center())
         self.play(ReplacementTransform(VGroup(calculation[4],output_ca_derivative_halfway),output_ca_derivative))
@@ -1010,7 +1009,7 @@ class ep1_1(Scene):
         b2e_scaled = b2e.copy()
         b2e_scaled.scale(1/store_scale)
 
-        calculation = VGroup(b2e_scaled,TexMobject("="),output_cz_derivative.copy())
+        calculation = VGroup(b2e_scaled,MathTex("="),output_cz_derivative.copy())
         calculation.scale(0.4)
         calculation.arrange(buff=0.5)
         calculation.move_to([side_equations_alignment + calculation.get_width()/2,current[0].get_y(),current[0].get_z()])
@@ -1018,7 +1017,7 @@ class ep1_1(Scene):
         self.play(ReplacementTransform(holder,calculation[2]))
 
         old_question_center = equation.get_center()
-        equation = TexMobject(r"\frac{\partial C}{\partial b^l}", "=", r"\delta^l")
+        equation = MathTex(r"\frac{\partial C}{\partial b^l}", "=", r"\delta^l")
         equation.move_to(old_question_center)
 
         # Horizontally aligns equation components to calculation components
@@ -1050,9 +1049,9 @@ class ep1_1(Scene):
         holder = calculation[2]
         calculation = VGroup(
             w2e_scaled,
-            TexMobject("="),
+            MathTex("="),
             output_cz_derivative.copy(),
-            VGroup(TexMobject(r"\Bigg("),a2_scaled,TexMobject(r"\Bigg)^T"))
+            VGroup(MathTex(r"\Bigg("),a2_scaled,MathTex(r"\Bigg)^T"))
         )
         calculation.scale(0.4)
         calculation[3].arrange(buff=0.1)
@@ -1061,7 +1060,7 @@ class ep1_1(Scene):
         self.play(ReplacementTransform(holder,calculation[2]))
 
         old_question_center = equation.get_center()
-        equation = TexMobject(r"\frac{\partial C}{\partial w^l}" ,"=", r"\delta_l", r"(a^{l-1})^T")
+        equation = MathTex(r"\frac{\partial C}{\partial w^l}" ,"=", r"\delta_l", r"(a^{l-1})^T")
         equation.move_to(old_question_center)
 
         align_horizontally(calculation,equation)
@@ -1096,11 +1095,11 @@ class ep1_1(Scene):
         wEqSelected = retainTransform(self,wEqSelected,errorEqSelected)
 
         old_question_center = equation.get_center()
-        equation = TexMobject(r"\delta^l", "=", r"(w^{l+1})^T", r"\delta^{l+1}", r"\odot", r"A'(z^l)")
+        equation = MathTex(r"\delta^l", "=", r"(w^{l+1})^T", r"\delta^{l+1}", r"\odot", r"A'(z^l)")
         equation.move_to(old_question_center)
 
         # Result
-        hidden_cz_derivative = Matrix(["-0.01...","0.00...","0.00..."],h_buff=1.75)
+        hidden_cz_derivative = Matrix([["-0.01..."],["0.00..."],["0.00..."]],h_buff=1.75)
 
         w2_scaled = w2.copy()
         w2_scaled.scale(1/store_scale)
@@ -1113,11 +1112,11 @@ class ep1_1(Scene):
         # Sets calculation
         calculation = VGroup(
             hidden_cz_derivative.copy(),
-            TexMobject("="),
-            VGroup(TexMobject(r"\Bigg("),w2_scaled,TexMobject(r"\Bigg)^T")),
+            MathTex("="),
+            VGroup(MathTex(r"\Bigg("),w2_scaled,MathTex(r"\Bigg)^T")),
             output_cz_derivative.copy(),
-            TexMobject(r"\odot"),
-            VGroup(TexMobject(r"\Bigg("),a2_scaled.copy(),TexMobject(r"\odot"),TexMobject(r"\bigg(1-"),a2_scaled.copy(),TexMobject(r"\bigg)"),TexMobject(r"\Bigg)"))
+            MathTex(r"\odot"),
+            VGroup(MathTex(r"\Bigg("),a2_scaled.copy(),MathTex(r"\odot"),MathTex(r"\bigg(1-"),a2_scaled.copy(),MathTex(r"\bigg)"),MathTex(r"\Bigg)"))
         )
         calculation.scale(0.4)
         calculation[2].arrange(buff=0.1)
@@ -1181,7 +1180,7 @@ class ep1_1(Scene):
         b1e_scaled = b1e.copy()
         b1e_scaled.scale(1/store_scale)
 
-        calculation = VGroup(b1e_scaled,TexMobject("="),hidden_cz_derivative.copy())
+        calculation = VGroup(b1e_scaled,MathTex("="),hidden_cz_derivative.copy())
         calculation.scale(0.4)
         calculation.arrange(buff=0.5)
         calculation.move_to([side_equations_alignment + calculation.get_width()/2,current[0].get_y(),current[0].get_z()])
@@ -1189,7 +1188,7 @@ class ep1_1(Scene):
         self.play(ReplacementTransform(holder,calculation[2]))
 
         old_question_center = equation.get_center()
-        equation = TexMobject(r"\frac{\partial C}{\partial b^l}", "=", r"\delta^l")
+        equation = MathTex(r"\frac{\partial C}{\partial b^l}", "=", r"\delta^l")
         equation.move_to(old_question_center)
 
         # Horizontally aligns equation components to calculation components
@@ -1221,9 +1220,9 @@ class ep1_1(Scene):
         holder = calculation[2]
         calculation = VGroup(
             w1e_scaled,
-            TexMobject("="),
+            MathTex("="),
             hidden_cz_derivative.copy(),
-            VGroup(TexMobject(r"\Bigg("),a1_scaled,TexMobject(r"\Bigg)^T"))
+            VGroup(MathTex(r"\Bigg("),a1_scaled,MathTex(r"\Bigg)^T"))
         )
         calculation.scale(0.4)
         calculation[3].arrange(buff=0.1)
@@ -1232,7 +1231,7 @@ class ep1_1(Scene):
         self.play(ReplacementTransform(holder,calculation[2]))
 
         old_question_center = equation.get_center()
-        equation = TexMobject(r"\frac{\partial C}{\partial w^l}" ,"=", r"\delta_l", r"(a^{l-1})^T")
+        equation = MathTex(r"\frac{\partial C}{\partial w^l}" ,"=", r"\delta_l", r"(a^{l-1})^T")
         equation.move_to(old_question_center)
 
         align_horizontally(calculation,equation)
@@ -1256,7 +1255,7 @@ class ep1_1(Scene):
 
         self.wait(1) # Big pause before big explanation and end
         
-        minus = TexMobject("-")
+        minus = MathTex("-")
         minus.scale(0.5)
 
         calculation = VGroup(
@@ -1296,6 +1295,8 @@ class ep1_1(Scene):
             ReplacementTransform(b2e.copy(),calculation[3][2])
         )
 
+        self.wait(SCENE_WAIT)
+
     def construct(self):
         
         # Scene 1: Title screen
@@ -1317,6 +1318,7 @@ def retainTransform(scene,a,b):
     scene.play(ReplacementTransform(a,b))
     return copy
 
+# Scales a given `obj` from an original scale `old` to a new scale `new`
 def rescale(obj,old,new):
     obj.scale(1/old)
     obj.scale(new)
@@ -1334,38 +1336,38 @@ class ep1_2(Scene):
     def play_simd(self):
         v_buffer = 1.1
 
-        simd_in = Matrix([1,2,3,4],v_buff=v_buffer)
-        simd_ones = Matrix([1,1,1,1],v_buff=v_buffer)
-        simd_out_pre = Matrix(["1+1","2+1","3+1","4+1"],v_buff=v_buffer)
-        simd_out_post = Matrix([2,3,4,5],v_buff=v_buffer)
-        simd = VGroup(simd_in,TexMobject("+"),simd_ones,TexMobject("="),simd_out_pre)
+        simd_in = Matrix([[1],[2],[3],[4]],v_buff=v_buffer)
+        simd_ones = Matrix([[1],[1],[1],[1]],v_buff=v_buffer)
+        simd_out_pre = Matrix([["1+1"],["2+1"],["3+1"],["4+1"]],v_buff=v_buffer)
+        simd_out_post = Matrix([[2],[3],[4],[5]],v_buff=v_buffer)
+        simd = VGroup(simd_in,MathTex("+"),simd_ones,MathTex("="),simd_out_pre)
         simd.arrange()
 
         sisd_out_pre = VGroup(
-            Matrix(["1+1"]),
-            Matrix(["2+1"]),
-            Matrix(["3+1"]),
-            Matrix(["4+1"])
+            Matrix([["1+1"]]),
+            Matrix([["2+1"]]),
+            Matrix([["3+1"]]),
+            Matrix([["4+1"]])
         )
         sisd_out_post = VGroup(
-            Matrix([2]),
-            Matrix([3]),
-            Matrix([4]),
-            Matrix([5])
+            Matrix([[2]]),
+            Matrix([[3]]),
+            Matrix([[4]]),
+            Matrix([[5]])
         )
         sisd = VGroup(
-            VGroup(Matrix([1]),TexMobject("+1="),sisd_out_pre[0]),
-            VGroup(Matrix([2]),TexMobject("+1="),sisd_out_pre[1]),
-            VGroup(Matrix([3]),TexMobject("+1="),sisd_out_pre[2]),
-            VGroup(Matrix([4]),TexMobject("+1="),sisd_out_pre[3]),
+            VGroup(Matrix([[1]]),MathTex("+1="),sisd_out_pre[0]),
+            VGroup(Matrix([[2]]),MathTex("+1="),sisd_out_pre[1]),
+            VGroup(Matrix([[3]]),MathTex("+1="),sisd_out_pre[2]),
+            VGroup(Matrix([[4]]),MathTex("+1="),sisd_out_pre[3]),
         )
         for row in sisd:
             row.arrange()
         sisd.arrange(DOWN)
         
-        simd_title = TextMobject("SIMD")
+        simd_title = Text("SIMD")
         simd_title.scale(1.5)
-        sisd_title = TextMobject("SISD")
+        sisd_title = Text("SISD")
         sisd_title.scale(1.5)
 
         scene = VGroup(
@@ -1446,7 +1448,7 @@ class ep1_2(Scene):
             r"z^l = w^l a^l + b^l J_n"
         ],wheres=[r"J_n=[1_1,...,1_n]"],scale=0.4)
         
-        title = TextMobject("Foreprop Equations")
+        title = Text("Foreprop Equations")
         title.move_to(side_equations.get_center()+3*UP)
 
         self.play(Write(title))
@@ -1468,7 +1470,7 @@ class ep1_2(Scene):
         a1 = Matrix([
             ["0","0","1","1"],
             ["0","1","0","1"]
-        ],h_buff=1.2)
+        ])
         a2 = Matrix([
             ["0.42...","0.47...","0.37...","0.42..."],
             ["0.57...","0.62...","0.59...","0.64..."],
@@ -1499,8 +1501,8 @@ class ep1_2(Scene):
             [0.1,0.2,0.3]
         ]).set_color(RED)
 
-        b1 = Matrix([-0.3,0.3,0.6]).set_color(BLUE)
-        b2 = Matrix([0.2,-0.2]).set_color(BLUE)
+        b1 = Matrix([[-0.3],[0.3],[0.6]]).set_color(BLUE)
+        b2 = Matrix([[0.2],[-0.2]]).set_color(BLUE)
         bu = Matrix([[1,1,1,1]],h_buff=0.7)
 
         # Sets up matricies
@@ -1521,7 +1523,7 @@ class ep1_2(Scene):
         input_edges = mid_xor_net[1][0]
         output_edges = mid_xor_net[1][1]
 
-        foreprop_header = TextMobject("Foreprogation")
+        foreprop_header = Text("Foreprogation")
         foreprop_header.shift(3*UP)
 
         # Transforms to new matricies and new net
@@ -1609,10 +1611,10 @@ class ep1_2(Scene):
         # z1 calculation
         z1_calculation = VGroup(
             z1_z1_scaled,
-            TexMobject("="),
+            MathTex("="),
             w1_scaled,
             z1_a1_scaled,
-            TexMobject("+"),
+            MathTex("+"),
             b1_scaled,
             z1_bu_scaled
         )
@@ -1626,7 +1628,7 @@ class ep1_2(Scene):
         ])
 
         # Pulls a1 into equation
-        self.play(ReplacementTransform(a1.copy(),a1_scaled))
+        self.play(ReplacementTransform(a1.copy(),z1_a1_scaled))
         # Pulls w1 into equation
         self.play(ReplacementTransform(w1.copy(),w1_scaled))
         # Pulls b1 into equation
@@ -1666,10 +1668,10 @@ class ep1_2(Scene):
 
         a2_calculation = VGroup(
             a2_a2_scaled,
-            TexMobject("="),
-            TexMobject(r"\sigma \Big("),
+            MathTex("="),
+            MathTex(r"\sigma \Big("),
             a2_z1_scaled,
-            TexMobject(r"\Big)")
+            MathTex(r"\Big)")
         )
         a2_calculation.arrange()
 
@@ -1738,10 +1740,10 @@ class ep1_2(Scene):
 
         z2_calculation = VGroup(
             z2_z2_scaled,
-            TexMobject("="),
+            MathTex("="),
             w2_scaled,
             z2_a2_scaled,
-            TexMobject("+"),
+            MathTex("+"),
             b2_scaled,
             z2_bu_scaled
         )
@@ -1791,10 +1793,10 @@ class ep1_2(Scene):
 
         a3_calculation = VGroup(
             a3_scaled,
-            TexMobject("="),
-            TexMobject(r"\sigma \Big("),
+            MathTex("="),
+            MathTex(r"\sigma \Big("),
             a3_z2_scaled,
-            TexMobject(r"\Big)")
+            MathTex(r"\Big)")
         )
         a3_calculation.arrange()
 
@@ -1823,7 +1825,7 @@ class ep1_2(Scene):
         # Done
         # ------------------------------------------------------------------------------------
 
-        self.play(Write(TextMobject("Contratz.")))
+        self.play(Write(Text("Contratz.")))
 
         self.wait()
 
@@ -1861,7 +1863,7 @@ class ep1_3(Scene):
             r"\frac{\partial C}{\partial w^l} = \delta^l (a^l)^T"
         ], wheres=[r"\delta^l = \frac{\partial C}{\partial z^l}",r"J_n=[1_1,...,1_n]^T"])
 
-        title = TextMobject("Batch backpropagation")
+        title = Text("Batch backpropagation")
         title.move_to(side_equations.get_center()+3*UP)
 
         self.play(Write(title))
@@ -2019,10 +2021,10 @@ class ep1_3(Scene):
         # Sets calculation
         calculation = VGroup(
             z2e.copy(),
-            TexMobject("="),
-            VGroup(a3_scaled.copy(),TexMobject("-"),target),
-            TexMobject(r"\odot"),
-            VGroup(TexMobject(r"\sigma ' ("),z2_scaled.copy(),TexMobject(r")"))
+            MathTex("="),
+            VGroup(a3_scaled.copy(),MathTex("-"),target),
+            MathTex(r"\odot"),
+            VGroup(MathTex(r"\sigma ' ("),z2_scaled.copy(),MathTex(r")"))
         )
         calculation[2].arrange(buff=equation_buffer)
         calculation[4].arrange(buff=equation_buffer)
@@ -2074,7 +2076,7 @@ class ep1_3(Scene):
         b2e_scaled.scale(equation_scale)
 
         # Sets calculation
-        calculation = VGroup(b2e_scaled,TexMobject("="),z2e.copy(),bu.copy())
+        calculation = VGroup(b2e_scaled,MathTex("="),z2e.copy(),bu.copy())
         calculation.arrange(buff=equation_buffer)
 
         # Aligns calculation to side equations
@@ -2109,9 +2111,9 @@ class ep1_3(Scene):
         holder = calculation[2]
         calculation = VGroup(
             w2e_scaled,
-            TexMobject("="),
+            MathTex("="),
             z2e.copy(),
-            VGroup(TexMobject(r"("),a2_scaled,TexMobject(r")^T"))
+            VGroup(MathTex(r"("),a2_scaled,MathTex(r")^T"))
         )
         calculation[3].arrange(buff=equation_buffer)
         calculation.arrange(buff=equation_buffer)
@@ -2163,11 +2165,11 @@ class ep1_3(Scene):
         # Sets calculation
         calculation = VGroup(
             z1e.copy(),
-            TexMobject("="),
-            VGroup(TexMobject(r"("),w2_scaled,TexMobject(r")^T")),
+            MathTex("="),
+            VGroup(MathTex(r"("),w2_scaled,MathTex(r")^T")),
             z2e.copy(),
-            TexMobject(r"\odot"),
-            VGroup(TexMobject(r"\sigma ' ("),z1_scaled.copy(),TexMobject(r")"))
+            MathTex(r"\odot"),
+            VGroup(MathTex(r"\sigma ' ("),z1_scaled.copy(),MathTex(r")"))
         )
         calculation[2].arrange(buff=equation_buffer)
         calculation[5].arrange(buff=equation_buffer)
@@ -2236,7 +2238,7 @@ class ep1_3(Scene):
         b1e_scaled.scale(1/store_scale)
         b1e_scaled.scale(equation_scale)
 
-        calculation = VGroup(b1e_scaled,TexMobject("="),z1e.copy(),bu.copy())
+        calculation = VGroup(b1e_scaled,MathTex("="),z1e.copy(),bu.copy())
         calculation.arrange(buff=equation_buffer)
 
         # Aligns calculation to side equations
@@ -2270,9 +2272,9 @@ class ep1_3(Scene):
         holder = calculation[2]
         calculation = VGroup(
             w1e_scaled,
-            TexMobject("="),
+            MathTex("="),
             z1e.copy(),
-            VGroup(TexMobject(r"("),a1_scaled,TexMobject(r")^T"))
+            VGroup(MathTex(r"("),a1_scaled,MathTex(r")^T"))
         )
         calculation[3].arrange(buff=equation_buffer)
         calculation.arrange(buff=equation_buffer)
@@ -2300,7 +2302,7 @@ class ep1_3(Scene):
 
         self.wait(1) # Big pause before big explanation and end
         
-        minus = TexMobject("-")
+        minus = MathTex("-")
         minus.scale(0.5)
 
         calculation = VGroup(
@@ -2392,8 +2394,8 @@ def set_layers(layers,distance=0.1,gradient=0.9,scaling=1):
     return VGroup(*perspective_lines)
 
 # TODO
-# - Regularisation (L2 + dropout)
-# - Initialisation
+# - Regularization (L2 + dropout)
+# - Initialization
 # - Different cost functions (quadratic + crossentropy)
 # - Different activations (sigmoid + tanh + softmax + relu + lrelu)
 
@@ -2407,12 +2409,12 @@ class ep2_0(Scene):
         self.play(Uncreate(title_scene))
     
     def play_conv(self,scale=0.5,label_spacing=0.5,arrow_spacing=0.02,image_size=(3,3),filter_size=(2,2)):
-        title = TextMobject("Convolution")
+        title = Text("Convolution")
         title.shift(3*UP)
         self.play(Write(title))
 
-        componentwise_equation = TexMobject(r"out_{i,j} = (in * filter)_{i,j} = \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n} filter_{m,n} + b")
-        matrix_equation = TexMobject(r"out = (in * filter) = in \cdot filter^T + b J_{h,w}")
+        componentwise_equation = MathTex(r"out_{i,j} = (in * filter)_{i,j} = \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n} filter_{m,n} + b")
+        matrix_equation = MathTex(r"out = (in * filter) = in \cdot filter^T + b J_{h,w}")
         equation = VGroup(componentwise_equation,matrix_equation)
         equation.arrange(DOWN)
         equation.scale(scale)
@@ -2420,24 +2422,24 @@ class ep2_0(Scene):
         image_vals = [[random.randint(0,2) for x in range(image_size[0])] for y in range(image_size[1])]
         image = Matrix(image_vals)
         image_vals = sum(image_vals,[])
-        img_label = TextMobject("Image/Input")
+        img_label = Text("Image/Input")
         img_label.scale(scale)
 
         # Sets image axis labels
-        filter_rows = TexMobject(r"h")
-        filter_cols = TexMobject(r"w")
+        filter_rows = MathTex(r"h")
+        filter_cols = MathTex(r"w")
         filter_rows.scale(scale)
         filter_cols.scale(scale)
         
         filt_vals = [[random.randint(0,1) for x in range(filter_size[0])] for y in range(filter_size[1])]
         filt = Matrix(filt_vals)
         filt_vals = sum(filt_vals,[])
-        filt_label = TextMobject("Filter/Kernel")
+        filt_label = Text("Filter/Kernel")
         filt_label.scale(scale)
         
         temp = Matrix([[0 for x in range(filter_size[0])] for y in range(filter_size[1])]).set_color(YELLOW)
         
-        filt_group = VGroup(filt,TexMobject("\odot"),temp)
+        filt_group = VGroup(filt,MathTex("\odot"),temp)
         filt_group.arrange(buff=0.5)
 
         feature_size = (image_size[0]-filter_size[0]+1,image_size[1]-filter_size[1]+1)
@@ -2445,7 +2447,7 @@ class ep2_0(Scene):
             [0 for x in range(feature_size[0])]
             for y in range(feature_size[1])
         ])
-        feature_label = TextMobject("Feature/Output")
+        feature_label = Text("Feature/Output")
         feature_label.scale(scale)
 
         scene = VGroup(image,filt_group,feature)
@@ -2453,7 +2455,7 @@ class ep2_0(Scene):
 
         scene.scale(scale)
         
-        calculation = VGroup(*[TexMobject("placeholder") for i in range(filter_size[1])])
+        calculation = VGroup(*[MathTex("placeholder") for i in range(filter_size[1])])
 
         self.play(
             Write(image),
@@ -2523,7 +2525,7 @@ class ep2_0(Scene):
                     highlight.move_to(image[0][image_indx].get_center()+shift)
 
                     # Sets calculation string
-                    calculation = VGroup(*[TexMobject(line) for line in multiplying])
+                    calculation = VGroup(*[MathTex(line) for line in multiplying])
                     calculation.scale(scale)
                     calculation.arrange(DOWN,buff=0.2)
                     calculation.move_to(
@@ -2551,7 +2553,7 @@ class ep2_0(Scene):
                     new_highlight.move_to(image[0][image_indx].get_center()+shift)
 
                     # Sets calculation string
-                    new_calculation = VGroup(*[TexMobject(line) for line in multiplying])
+                    new_calculation = VGroup(*[MathTex(line) for line in multiplying])
                     new_calculation.scale(scale)
                     new_calculation.arrange(DOWN,buff=0.2)
                     new_calculation.move_to(calculation.get_center())
@@ -2572,7 +2574,7 @@ class ep2_0(Scene):
                     )
 
                 # Sets and writes result
-                resul_obj = TexMobject(str(result))
+                resul_obj = MathTex(str(result))
                 resul_obj.scale(scale)
                 resul_obj.move_to(feature[0][feature_indx].get_center())
                 self.play(Write(resul_obj))
@@ -2598,7 +2600,7 @@ class ep2_0(Scene):
         highlight = Rectangle(color=YELLOW,height=filt.get_height(),width=filt.get_width())
 
         # Sets and writes subtitle
-        subtitle = TextMobject("Zero padding")
+        subtitle = Text("Zero padding")
         subtitle.scale(0.6)
         subtitle.shift(2.6*UP)
         self.play(Write(subtitle))
@@ -2696,7 +2698,7 @@ class ep2_0(Scene):
                     highlight.move_to(padded_image[0][image_indx].get_center()+shift)
 
                     # Sets calculation
-                    calculation = VGroup(*[TexMobject(line) for line in multiplying])
+                    calculation = VGroup(*[MathTex(line) for line in multiplying])
                     calculation.scale(scale)
                     calculation.arrange(DOWN,buff=0.2)
                     calculation.move_to(
@@ -2724,7 +2726,7 @@ class ep2_0(Scene):
                     new_highlight.move_to(padded_image[0][image_indx].get_center()+shift)
 
                     # Sets calculation
-                    new_calculation = VGroup(*[TexMobject(line) for line in multiplying])
+                    new_calculation = VGroup(*[MathTex(line) for line in multiplying])
                     new_calculation.scale(scale)
                     new_calculation.arrange(DOWN,buff=0.2)
                     new_calculation.move_to(calculation.get_center())
@@ -2747,7 +2749,7 @@ class ep2_0(Scene):
 
                 # Writes padding result
                 if (yi==0 or xi==0 or xi==feature_size[0]-1 or yi==feature_size[1]-1):
-                    resul_obj = TexMobject(str(result))
+                    resul_obj = MathTex(str(result))
                     resul_obj.scale(scale)
                     resul_obj.move_to(padded_feature[0][feature_indx].get_center())
                     self.play(Write(resul_obj))
@@ -2777,12 +2779,12 @@ class ep2_0(Scene):
         self.play(Uncreate(written))
 
         # Sets subtitle
-        subtitle = TextMobject("Channels")
+        subtitle = Text("Channels")
         subtitle.scale(0.6)
         subtitle.shift(2.6*UP)
 
         # Sets filter depth label
-        filter_depth = TexMobject(r"d")
+        filter_depth = MathTex(r"d")
         filter_depth.scale(scale)
         filter_depth.move_to(
             filt.get_center()-
@@ -2794,7 +2796,7 @@ class ep2_0(Scene):
         )
 
         # Sets equation
-        new_equation = TexMobject(r"out_{i,j} = (in * filters)_{i,j} = \sum_{l=1}^d \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n,l} \cdot filter_{m,n,l} + b")
+        new_equation = MathTex(r"out_{i,j} = (in * filters)_{i,j} = \sum_{l=1}^d \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n,l} \cdot filter_{m,n,l} + b")
         new_equation.scale(scale)
         new_equation.move_to(equation.get_center())
 
@@ -2875,7 +2877,7 @@ class ep2_0(Scene):
                     lines = set_layers(highlights)
 
                     # Sets calculation
-                    calculation = VGroup(*[TexMobject(line) for line in multiplying])
+                    calculation = VGroup(*[MathTex(line) for line in multiplying])
                     calculation.scale(scale)
                     calculation.arrange(DOWN,buff=0.2)
                     calculation.move_to(
@@ -2904,7 +2906,7 @@ class ep2_0(Scene):
                     new_highlights.shift(distance+shift)
 
                     # Sets calculation
-                    new_calculation = VGroup(*[TexMobject(line) for line in multiplying])
+                    new_calculation = VGroup(*[MathTex(line) for line in multiplying])
                     new_calculation.scale(scale)
                     new_calculation.arrange(DOWN,buff=0.2)
                     new_calculation.move_to(calculation.get_center())
@@ -2925,7 +2927,7 @@ class ep2_0(Scene):
                     )
                 # Writes feature value
                 if (yi==0 or xi==0 or xi==feature_size[0]-1 or yi==feature_size[1]-1):
-                    resul_obj = TexMobject(str(result))
+                    resul_obj = MathTex(str(result))
                     resul_obj.scale(scale)
                     resul_obj.move_to(feature[0][feature_indx].get_center())
                     self.play(Write(resul_obj))
@@ -2952,14 +2954,14 @@ class ep2_1(Scene):
         self.play(Uncreate(title_scene))
     
     def max_pool(self,scale=0.5,label_spacing=0.5,arrow_spacing=0.02,image_size=(4,4),pool_size=(2,2)):
-        title = TextMobject("Pooling")
+        title = Text("Pooling")
         title.shift(3*UP)
 
-        subtitle = TextMobject("Max pooling")
+        subtitle = Text("Max pooling")
         subtitle.scale(0.6)
         subtitle.shift(2.6*UP)
 
-        equation = TexMobject(r"\max(\{{in_{ih+m,jw+n} | n∪m⊆ℤ, 1 \leq m \leq h, 1 \leq n \leq w}\}) = out_{i+1,j+1}")
+        equation = MathTex(r"\max(\{{in_{ih+m,jw+n} | n∪m⊆ℤ, 1 \leq m \leq h, 1 \leq n \leq w}\}) = out_{i+1,j+1}")
         equation.scale(scale)
 
         self.play(
@@ -2971,7 +2973,7 @@ class ep2_1(Scene):
         image = Matrix(image_vals)
         image_vals = sum(image_vals,[])
 
-        img_label = TextMobject("Image/Input")
+        img_label = Text("Image/Input")
         img_label.scale(scale)
         
         temp = Matrix([[image_vals[x+y*image_size[0]] for x in range(pool_size[0])] for y in range(pool_size[1])]).set_color(YELLOW)
@@ -2981,7 +2983,7 @@ class ep2_1(Scene):
             [0 for x in range(new_image_size[0])]
             for y in range(new_image_size[1])
         ])
-        new_image_label = TextMobject("New image/Output")
+        new_image_label = Text("New image/Output")
         new_image_label.scale(scale)
 
         scene = VGroup(image,temp,new_image)
@@ -2995,8 +2997,8 @@ class ep2_1(Scene):
         )
         
         # Sets image axis labels
-        pool_rows = TexMobject(r"h")
-        pool_cols = TexMobject(r"w")
+        pool_rows = MathTex(r"h")
+        pool_cols = MathTex(r"w")
         pool_rows.scale(scale)
         pool_cols.scale(scale)
 
@@ -3023,7 +3025,7 @@ class ep2_1(Scene):
 
         highlight = Rectangle(color=YELLOW,height=temp.get_height(),width=temp.get_width())#.set_fill(YELLOW, opacity=0.1)
 
-        calculation = TexMobject("placeholder")
+        calculation = MathTex("placeholder")
 
         for yi,yni in zip(range(0,image_size[1],pool_size[1]),range(0,new_image_size[1])):
             for xi,xni in zip(range(0,image_size[0],pool_size[0]),range(0,new_image_size[0])):
@@ -3050,7 +3052,7 @@ class ep2_1(Scene):
                     highlight.move_to(image[0][img_indx].get_center()+shift)
 
                     # Sets calculation string
-                    calculation = TexMobject(max_of)
+                    calculation = MathTex(max_of)
                     calculation.scale(scale)
                     calculation.move_to(
                         equation.get_center()-
@@ -3083,7 +3085,7 @@ class ep2_1(Scene):
                     new_temp.move_to(temp.get_center())
 
                     # Sets calculation string
-                    new_calculation = TexMobject(max_of)
+                    new_calculation = MathTex(max_of)
                     new_calculation.scale(scale)
                     new_calculation.move_to(calculation.get_center())
 
@@ -3103,7 +3105,7 @@ class ep2_1(Scene):
                     )
 
                 
-                resul_obj = TexMobject(str(max_val))
+                resul_obj = MathTex(str(max_val))
                 resul_obj.scale(scale)
                 resul_obj.move_to(new_image[0][pooled_img_indx].get_center())
                 self.play(Write(resul_obj))
@@ -3129,7 +3131,7 @@ def get_matrix_conv_net(
     in_shape = (0,0),
 ):
     # Adds input#
-    inputs = VGroup(*[TexMobject("placeholder")])
+    inputs = VGroup(*[MathTex("placeholder")])
     if in_shape == (0,0):
         inputs = VGroup(Matrix([
                 ["a_{1,1,1}","\\dots","a_{1,1,n_1}"],
@@ -3219,7 +3221,7 @@ def get_explicit_conv_net(
     ]
     circles = []
     for layer in dense_layers:
-        num = TextMobject(str(layer)).scale(scale)
+        num = Text(str(layer)).scale(scale)
         layers += num
 
     layers = VGroup(*layers)
@@ -3353,7 +3355,7 @@ def setup(scale,h_buff,distance=0.3,buff=0.4):
     )
     f1.arrange(DOWN)
 
-    b1 = VGroup(TexMobject("-2",color=BLUE),TexMobject("-1",color=BLUE))
+    b1 = VGroup(MathTex("-2",color=BLUE),MathTex("-1",color=BLUE))
     b1.arrange(DOWN)
 
     z1 = VGroup(
@@ -3402,7 +3404,7 @@ def setup(scale,h_buff,distance=0.3,buff=0.4):
         set_layers(f,distance=distance)
     f2.arrange(DOWN)
 
-    b2 = VGroup(TexMobject("-1",color=BLUE),TexMobject("-1",color=BLUE),TexMobject("-2",color=BLUE))
+    b2 = VGroup(MathTex("-1",color=BLUE),MathTex("-1",color=BLUE),MathTex("-2",color=BLUE))
     b2.arrange(DOWN)
 
     z2 = VGroup(
@@ -3470,7 +3472,7 @@ class ep2_2(Scene):
             r"z^l_{i,j} = (a^l * w^l)_{i,j} + b^l", #  
         ],scale=0.5) # 
 
-        title = TextMobject("Convolutional Foreprop")
+        title = Text("Convolutional Foreprop")
         title.move_to(side_equations.get_center()+3.3*UP)
 
         self.play(Write(title))
@@ -3533,7 +3535,7 @@ class ep2_2(Scene):
         j1 = Matrix([[1,1],[1,1]],h_buff=h_buff).set_color(GREY)
         j1.scale(scale)
 
-        calculation = VGroup(a1.copy(),TexMobject("*"),f1[0].copy(),TexMobject("+"),b1[0].copy(),j1,TexMobject("="),z1[0].copy())
+        calculation = VGroup(a1.copy(),MathTex("*"),f1[0].copy(),MathTex("+"),b1[0].copy(),j1,MathTex("="),z1[0].copy())
         calculation.arrange()
 
         if calculation.get_x()-calculation.get_width()/2 < side_equations.get_x()+side_equations.get_width()/2:
@@ -3614,7 +3616,7 @@ class ep2_2(Scene):
 
         conv_z = retainTransform(self,conv_z,a)
 
-        calculation = VGroup(TexMobject("A ("),z1.copy(),TexMobject(")="),a2.copy())
+        calculation = VGroup(MathTex("A ("),z1.copy(),MathTex(")="),a2.copy())
         calculation.arrange()
 
         self.play(
@@ -3653,7 +3655,7 @@ class ep2_2(Scene):
         j2 = Matrix([1,1],h_buff=h_buff).set_color(GREY)
         j2.scale(scale)
 
-        calculation = VGroup(a2.copy(),TexMobject("*"),f2[0].copy(),TexMobject("+"),b2[0].copy(),j2,TexMobject("="),z2[0].copy())
+        calculation = VGroup(a2.copy(),MathTex("*"),f2[0].copy(),MathTex("+"),b2[0].copy(),j2,MathTex("="),z2[0].copy())
         calculation.arrange()
 
         if calculation.get_x()-calculation.get_width()/2 < side_equations.get_x()+side_equations.get_width()/2:
@@ -3764,7 +3766,7 @@ class ep2_2(Scene):
 
         conv_z = retainTransform(self,conv_z,a)
 
-        calculation = VGroup(TexMobject("A ("),z2.copy(),TexMobject(")="),a3.copy())
+        calculation = VGroup(MathTex("A ("),z2.copy(),MathTex(")="),a3.copy())
         calculation.arrange()
 
         self.play(
@@ -3805,7 +3807,7 @@ class ep2_2(Scene):
         flat = VGroup(a3[0].copy(),a3[1].copy(),a3[2].copy())
         flat.arrange(DOWN,buff=0.05)
 
-        calculation = VGroup(w1.copy(),flat,TexMobject("+"),b3.copy(),TexMobject("="),z3.copy())
+        calculation = VGroup(w1.copy(),flat,MathTex("+"),b3.copy(),MathTex("="),z3.copy())
         calculation.arrange()
 
         flattened = Matrix([2,1,3,2,5,3],h_buff=h_buff)
@@ -3859,7 +3861,7 @@ class ep2_2(Scene):
 
         dense_z = retainTransform(self,dense_z,a)
 
-        calculation = VGroup(TexMobject("A ("),z3.copy(),TexMobject(")="),a4.copy())
+        calculation = VGroup(MathTex("A ("),z3.copy(),MathTex(")="),a4.copy())
         calculation.arrange()
 
         self.play(
@@ -3907,7 +3909,7 @@ class ep2_3(Scene):
             r"\frac{\partial C}{\partial w^l_{m,n}} = \delta_l \odot \frac{\partial z^l}{\partial w^l}", #  
         ], wheres=[r"\delta_l = \frac{\partial C}{\partial z^l}"],scale=0.5) # 
 
-        title = TextMobject("Convolutional Foreprop")
+        title = Text("Convolutional Foreprop")
         title.move_to(side_equations.get_center()+3.3*UP)
 
         self.play(Write(title))
@@ -3970,7 +3972,7 @@ class ep2_3(Scene):
         j1 = Matrix([[1,1],[1,1]],h_buff=h_buff).set_color(GREY)
         j1.scale(scale)
 
-        calculation = VGroup(a1.copy(),TexMobject("*"),f1[0].copy(),TexMobject("+"),b1[0].copy(),j1,TexMobject("="),z1[0].copy())
+        calculation = VGroup(a1.copy(),MathTex("*"),f1[0].copy(),MathTex("+"),b1[0].copy(),j1,MathTex("="),z1[0].copy())
         calculation.arrange()
 
         if calculation.get_x()-calculation.get_width()/2 < side_equations.get_x()+side_equations.get_width()/2:
@@ -4051,7 +4053,7 @@ class ep2_3(Scene):
 
         conv_z = retainTransform(self,conv_z,a)
 
-        calculation = VGroup(TexMobject("A ("),z1.copy(),TexMobject(")="),a2.copy())
+        calculation = VGroup(MathTex("A ("),z1.copy(),MathTex(")="),a2.copy())
         calculation.arrange()
 
         self.play(
@@ -4090,7 +4092,7 @@ class ep2_3(Scene):
         j2 = Matrix([1,1],h_buff=h_buff).set_color(GREY)
         j2.scale(scale)
 
-        calculation = VGroup(a2.copy(),TexMobject("*"),f2[0].copy(),TexMobject("+"),b2[0].copy(),j2,TexMobject("="),z2[0].copy())
+        calculation = VGroup(a2.copy(),MathTex("*"),f2[0].copy(),MathTex("+"),b2[0].copy(),j2,MathTex("="),z2[0].copy())
         calculation.arrange()
 
         if calculation.get_x()-calculation.get_width()/2 < side_equations.get_x()+side_equations.get_width()/2:
@@ -4201,7 +4203,7 @@ class ep2_3(Scene):
 
         conv_z = retainTransform(self,conv_z,a)
 
-        calculation = VGroup(TexMobject("A ("),z2.copy(),TexMobject(")="),a3.copy())
+        calculation = VGroup(MathTex("A ("),z2.copy(),MathTex(")="),a3.copy())
         calculation.arrange()
 
         self.play(
@@ -4242,7 +4244,7 @@ class ep2_3(Scene):
         flat = VGroup(a3[0].copy(),a3[1].copy(),a3[2].copy())
         flat.arrange(DOWN,buff=0.05)
 
-        calculation = VGroup(w1.copy(),flat,TexMobject("+"),b3.copy(),TexMobject("="),z3.copy())
+        calculation = VGroup(w1.copy(),flat,MathTex("+"),b3.copy(),MathTex("="),z3.copy())
         calculation.arrange()
 
         flattened = Matrix([2,1,3,2,5,3],h_buff=h_buff)
@@ -4296,7 +4298,7 @@ class ep2_3(Scene):
 
         dense_z = retainTransform(self,dense_z,a)
 
-        calculation = VGroup(TexMobject("A ("),z3.copy(),TexMobject(")="),a4.copy())
+        calculation = VGroup(MathTex("A ("),z3.copy(),MathTex(")="),a4.copy())
         calculation.arrange()
 
         self.play(
