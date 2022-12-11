@@ -10,7 +10,7 @@ from ecommon import (
 )
 
 # Backprop
-class ep1_1(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(1.1, "Backpropagation")
 

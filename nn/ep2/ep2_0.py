@@ -9,7 +9,7 @@ from ecommon import (
 )
 
 # Convolution
-class ep2_0(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(2.0, "Convolution")
 

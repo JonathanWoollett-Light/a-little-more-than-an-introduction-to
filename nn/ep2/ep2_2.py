@@ -9,7 +9,7 @@ from ecommon import (
 )
 
 # Convolutional foreprop
-class ep2_2(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(2.2, "Convolutional forepropagation")
 

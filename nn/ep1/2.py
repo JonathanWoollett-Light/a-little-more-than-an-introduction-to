@@ -10,7 +10,7 @@ from ecommon import (
 )
 
 # Batch foreprop
-class ep1_2(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(1.2, "Batch forepropagation")
 
@@ -137,7 +137,7 @@ class ep1_2(Scene):
 
         return side_equations
 
-    def play_batch_forwardpropagation(
+    def play_batch_forward_propagation(
         self, side_equations, store_scale=0.3, equation_scale=0.4
     ):
         # Define some useful aliases
@@ -544,4 +544,4 @@ class ep1_2(Scene):
 
         # Scene 4: Batch foreprop
         # -----------------------------
-        self.play_batch_forwardpropagation(side_equations)
+        self.play_batch_forward_propagation(side_equations)

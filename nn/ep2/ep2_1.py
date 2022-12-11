@@ -9,7 +9,7 @@ from ecommon import (
 )
 
 # Pooling
-class ep2_1(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(2.1, "Pooling")
 

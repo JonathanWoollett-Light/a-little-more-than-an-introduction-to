@@ -10,7 +10,7 @@ from ecommon import (
 )
 
 # Foreprop
-class ep1_0(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(1.0, "Forepropagation")
 

@@ -9,7 +9,7 @@ from ecommon import (
 )
 
 # Convolutional backprop
-class ep2_3(Scene):
+class EpisodeScene(Scene):
     def play_intro(self):
         title_scene = get_title_screen(2.3, "Convolutional backpropagation")
 
