@@ -36,14 +36,14 @@ def get_xor_net(text_scale, vertical_spacing, horizontal_spacing):
 
     input_edges = VGroup(
         *[
-            Line(n1.get_center(), n2[0].get_center(), stroke_width=0.5)
+            Line(n1.get_center(), n2[0].get_center(), stroke_width=1)
             for n1 in inputs
             for n2 in hidden
         ]
     )
     output_edges = VGroup(
         *[
-            Line(n1.get_center(), n2[0].get_center(), stroke_width=0.5)
+            Line(n1.get_center(), n2[0].get_center(), stroke_width=1)
             for n1 in hidden
             for n2 in outputs
         ]
