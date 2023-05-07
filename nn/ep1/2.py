@@ -1,13 +1,13 @@
-from manim import *
 from ecommon import (
-    get_title_screen,
-    SCENE_WAIT,
-    get_xor_net,
     get_equations,
     get_highlight_box,
+    get_title_screen,
+    get_xor_net,
     rescale,
     retainTransform,
 )
+from manim import *
+
 
 # Batch foreprop
 class EpisodeScene(Scene):
@@ -15,7 +15,7 @@ class EpisodeScene(Scene):
         title_scene = get_title_screen(1.2, "Batch forepropagation")
 
         self.add(title_scene)
-        self.wait(2)
+        self.wait()
         self.play(Uncreate(title_scene))
 
     def play_simd(self):
@@ -66,6 +66,8 @@ class EpisodeScene(Scene):
 
         self.play(Write(scene))
 
+        self.wait()
+
         simd_box = Rectangle(
             color=YELLOW, height=simd.get_height() + 0.3, width=simd.get_width() + 0.3
         )
@@ -78,18 +80,22 @@ class EpisodeScene(Scene):
 
         self.play(Write(simd_box))
 
+        self.wait()
+
         self.play(ReplacementTransform(simd_out_pre[0], simd_out_post[0]))
 
-        self.wait(2)
+        self.wait()
 
         self.play(ReplacementTransform(simd_box, sisd_box))
+
+        self.wait()
 
         self.play(ReplacementTransform(sisd_out_pre[0][0], sisd_out_post[0][0]))
         self.play(ReplacementTransform(sisd_out_pre[1][0], sisd_out_post[1][0]))
         self.play(ReplacementTransform(sisd_out_pre[2][0], sisd_out_post[2][0]))
         self.play(ReplacementTransform(sisd_out_pre[3][0], sisd_out_post[3][0]))
 
-        self.wait(5)
+        self.wait()
 
         self.play(
             # Uncreate easy parts of equations
@@ -149,7 +155,7 @@ class EpisodeScene(Scene):
             side_equations.get_x() + side_equations.get_width() / 2 + 0.5
         )
 
-        # Sets up matricies with values
+        # Sets up matrices with values
         a1 = Matrix([["0", "0", "1", "1"], ["0", "1", "0", "1"]])
         a2 = Matrix(
             [
@@ -190,11 +196,11 @@ class EpisodeScene(Scene):
         b2 = Matrix([[0.2], [-0.2]]).set_color(BLUE)
         bu = Matrix([[1, 1, 1, 1]], h_buff=0.7)
 
-        # Sets up matricies
+        # Sets up matrices
         net_values_precise = VGroup(a1, w1, b1, z1, a2, w2, b2, z2, a3)
         net_values_precise.arrange()
-        net_values_precise.scale(store_scale)  # Scales up matricies
-        # Shifts matricies up
+        net_values_precise.scale(store_scale)  # Scales up matrices
+        # Shifts matrices up
         net_values_precise.shift(2 * UP)
 
         # Gets small XOR net
@@ -211,7 +217,7 @@ class EpisodeScene(Scene):
         foreprop_header = Text("Foreprogation")
         foreprop_header.shift(3 * UP)
 
-        # Transforms to new matricies and new net
+        # Transforms to new matrices and new net
         self.play(
             Write(foreprop_header),
             Write(mid_xor_net),
@@ -241,7 +247,7 @@ class EpisodeScene(Scene):
         inputs.set_color(YELLOW)
         self.play(Write(inputs))
 
-        # Highlights matricies
+        # Highlights matrices
         a1_highlight = get_highlight_box(VGroup(a1))
         self.play(Write(a1_highlight))
 
@@ -252,6 +258,8 @@ class EpisodeScene(Scene):
         )  # Re-used later, so we don't use and uncreate the base version
 
         a1_a1_scaled.center()
+
+        self.wait()
 
         # Writes a1
         self.play(Write(a1_a1_scaled))
@@ -269,7 +277,7 @@ class EpisodeScene(Scene):
         # Highlights equation
         self.play(Write(eqZ))
 
-        # Highlights matricies
+        # Highlights matrices
         z1_highlight = get_highlight_box(VGroup(a1, w1, b1, z1))
         self.play(ReplacementTransform(a1_highlight, z1_highlight))
 
@@ -337,7 +345,7 @@ class EpisodeScene(Scene):
         # Store z1
         self.play(ReplacementTransform(z1_z1_scaled.copy(), z1))
 
-        self.wait(SCENE_WAIT)
+        self.wait()
 
         # Clears z1 calculation
         self.play(Uncreate(z1_calculation))
@@ -349,7 +357,7 @@ class EpisodeScene(Scene):
         # Highlights equation
         eqZ = retainTransform(self, eqZ, eqA)
 
-        # Highlights matricies
+        # Highlights matrices
         a2_highlight = get_highlight_box(VGroup(z1, a2))
         self.play(ReplacementTransform(z1_highlight, a2_highlight))
 
@@ -386,12 +394,12 @@ class EpisodeScene(Scene):
             Write(a2_a2_scaled), Write(a2_calculation[1:3]), Write(a2_calculation[4])
         )
 
-        self.wait(SCENE_WAIT)
+        self.wait()
 
         # Store a2
         self.play(ReplacementTransform(a2_a2_scaled.copy(), a2))
 
-        self.wait(SCENE_WAIT)
+        self.wait()
 
         # Clears equation
         self.play(Uncreate(a2_calculation))
@@ -403,7 +411,7 @@ class EpisodeScene(Scene):
         # Highlights equation
         eqA = retainTransform(self, eqA, eqZ)
 
-        # Highlights matricies
+        # Highlights matrices
         z2_highlight = get_highlight_box(VGroup(a2, w2, b2, z2))
         self.play(ReplacementTransform(a2_highlight, z2_highlight))
 
@@ -470,7 +478,7 @@ class EpisodeScene(Scene):
             Write(z2_calculation[4]),
             Write(z2_bu_scaled),
         )
-        # Store result into matricies
+        # Store result into matrices
         self.play(ReplacementTransform(z2_z2_scaled.copy(), z2))
         # Clears equation
         self.play(Uncreate(z2_calculation))
@@ -518,7 +526,7 @@ class EpisodeScene(Scene):
         # Stores a3
         self.play(ReplacementTransform(a3_scaled.copy(), a3))
 
-        self.wait(SCENE_WAIT)
+        self.wait()
 
         self.play(Uncreate(a3_calculation))
 

@@ -1,13 +1,13 @@
-from manim import *
 from ecommon import (
-    get_title_screen,
-    SCENE_WAIT,
-    get_xor_net,
     get_equations,
     get_highlight_box,
+    get_title_screen,
+    get_xor_net,
     rescale,
     retainTransform,
 )
+from manim import *
+
 
 # Batch backprop
 class EpisodeScene(Scene):
@@ -15,7 +15,7 @@ class EpisodeScene(Scene):
         title_scene = get_title_screen(1.3, "Batch backpropagation")
 
         self.add(title_scene)
-        self.wait(2)
+        self.wait()
         self.play(Uncreate(title_scene))
 
     def play_equations(self):
@@ -36,9 +36,9 @@ class EpisodeScene(Scene):
         title.move_to(side_equations.get_center() + 3 * UP)
 
         self.play(Write(title))
-        self.wait(3)
+        self.wait()
         self.play(Write(side_equations))
-        self.wait(3)
+        self.wait()
 
         yield title
         yield side_equations
@@ -54,7 +54,7 @@ class EpisodeScene(Scene):
         equation_buffer=0.1,
     ):
 
-        # Sets up matricies with values
+        # Sets up matrices with values
         # ----------------------------------------------------------
         a1 = Matrix([["0", "0", "1", "1"], ["0", "1", "0", "1"]], h_buff=0.6)
         a2 = Matrix(
@@ -119,15 +119,15 @@ class EpisodeScene(Scene):
             h_buff=1.5,
         ).set_color(GREEN)
 
-        b1 = Matrix([-0.3, 0.3, 0.6]).set_color(BLUE)
-        b1e = Matrix(["-0.00...", "0.03...", "0.01..."]).set_color(GREEN)
-        b2 = Matrix([0.2, -0.2]).set_color(BLUE)
-        b2e = Matrix(["0.10...", "0.15..."]).set_color(GREEN)
+        b1 = Matrix([[-0.3, 0.3, 0.6]]).set_color(BLUE)
+        b1e = Matrix([["-0.00...", "0.03...", "0.01..."]]).set_color(GREEN)
+        b2 = Matrix([[0.2, -0.2]]).set_color(BLUE)
+        b2e = Matrix([["0.10...", "0.15..."]]).set_color(GREEN)
 
-        bu = Matrix([1, 1, 1, 1], h_buff=0.7)
+        bu = Matrix([[1, 1, 1, 1]], h_buff=0.7)
         bu.scale(equation_scale)
 
-        # Groups layer matricies
+        # Groups layer matrices
         n1 = VGroup(w1e, z1, b1, b1e, a2)
         n2 = VGroup(w2e, z2, b2, b2e, a3)
 
@@ -146,12 +146,12 @@ class EpisodeScene(Scene):
             + side_equation_space
         )
 
-        # Scales all matricies
+        # Scales all matrices
         net_values_precise = VGroup(
             a1, w1, w1e, z1, b1, b1e, a2, w2, w2e, z2, b2, b2e, a3
         )
         net_values_precise.arrange(buff=0.3)
-        net_values_precise.scale(store_scale)  # Scales down matricies
+        net_values_precise.scale(store_scale)  # Scales down matrices
         net_values_precise.shift(2 * UP)
 
         # Shifts so it is visible
@@ -194,7 +194,7 @@ class EpisodeScene(Scene):
             Write(a3_scaled),
             Write(mid_xor_net),
         )
-        self.wait(10)
+        self.wait()
 
         # Sets output error
         # ----------------------------------------------------------
@@ -246,7 +246,7 @@ class EpisodeScene(Scene):
         self.play(ReplacementTransform(a3_scaled, calculation[2][0]))
         self.play(ReplacementTransform(z2.copy(), calculation[4][1]))
 
-        # Writes calculation, avoiding rewriting transformed in matricies
+        # Writes calculation, avoiding rewriting transformed in matrices
         self.play(
             Write(calculation[0:2]),
             Write(calculation[2][1]),
@@ -387,7 +387,7 @@ class EpisodeScene(Scene):
             ]
         )
 
-        # Shifts highlight box to match matricies shift
+        # Shifts highlight box to match matrices shift
 
         n1Selected.shift(8 * RIGHT)
 
@@ -416,15 +416,15 @@ class EpisodeScene(Scene):
             Write(mid_xor_net[1][0]),
         )
 
-        # Shifts matricies highlight box
+        # Shifts matrices highlight box
         self.play(ReplacementTransform(n2Selected, n1Selected))
 
-        # Pulls transforms matricies into calculation
+        # Pulls transforms matrices into calculation
         self.play(ReplacementTransform(holder, calculation[3]))
         self.play(ReplacementTransform(z1.copy(), calculation[5][1]))
         self.play(ReplacementTransform(w2.copy(), calculation[2][1]))
 
-        # Write calculation, avoiding re-writing transformed in matricies
+        # Write calculation, avoiding re-writing transformed in matrices
         self.play(
             Write(calculation[0:2]),
             Write(calculation[2][0]),
@@ -433,7 +433,7 @@ class EpisodeScene(Scene):
             Write(calculation[5][0]),
             Write(calculation[5][2]),
         )
-        self.wait(10)  # After this, everything is repeated
+        self.wait()  # After this, everything is repeated
 
         # Uncreate calculation, sans error
         self.play(Uncreate(calculation[1:6]))
@@ -523,7 +523,7 @@ class EpisodeScene(Scene):
         # Uncreates calculation
         self.play(Uncreate(calculation))
 
-        self.wait(1)  # Big pause before big explanation and end
+        self.wait()  # Big pause before big explanation and end
 
         minus = MathTex("-")
         minus.scale(0.5)
@@ -567,6 +567,8 @@ class EpisodeScene(Scene):
             ReplacementTransform(b2.copy(), calculation[3][0]),
             ReplacementTransform(b2e.copy(), calculation[3][2]),
         )
+
+        self.wait()
 
     def construct(self):
 

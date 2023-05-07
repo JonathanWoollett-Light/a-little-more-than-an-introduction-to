@@ -1,13 +1,20 @@
-from manim import *
 from ecommon import (
-    get_title_screen,
-    SCENE_WAIT,
-    get_xor_net,
     get_equations,
     get_highlight_box,
+    get_title_screen,
+    get_xor_net,
     rescale,
     retainTransform,
 )
+from manim import *
+
+
+# Puts all centers of components of y vertically inline with centers of components of x.
+# Simply put, horizontally aligns components of y with components of x.
+def align_horizontally(x, y):
+    for (xc, yc) in zip(x, y):
+        yc.move_to([xc.get_x(), yc.get_y(), yc.get_z()])
+
 
 # Backprop
 class EpisodeScene(Scene):
@@ -46,7 +53,7 @@ class EpisodeScene(Scene):
 
     def play_backpropagation(self, title, side_equations, store_scale=0.3):
 
-        # Sets up matricies with values
+        # Sets up matrices with values
         # ----------------------------------------------------------
         a1 = Matrix([["0"], ["1"]], h_buff=1.2)
         a2 = Matrix([["0.47..."], ["0.62..."], ["0.52..."]], h_buff=1.2)
@@ -104,12 +111,12 @@ class EpisodeScene(Scene):
         n1 = VGroup(w1e, b1, b1e, z1, a2)
         n2 = VGroup(w2e, b2, b2e, z2, a3)
 
-        # Scales all matricies
+        # Scales all matrices
         net_values_precise = VGroup(
             a1, w1, w1e, b1, b1e, z1, a2, w2, w2e, b2, b2e, z2, a3
         )
         net_values_precise.arrange()
-        net_values_precise.scale(store_scale)  # Scales down matricies
+        net_values_precise.scale(store_scale)  # Scales down matrices
 
         title_and_values = VGroup(title.copy(), net_values_precise)
         title_and_values.arrange(DOWN)
@@ -623,7 +630,7 @@ class EpisodeScene(Scene):
             ReplacementTransform(b2e.copy(), calculation[3][2]),
         )
 
-        self.wait(SCENE_WAIT)
+        self.wait()
 
     def construct(self):
 

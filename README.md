@@ -11,3 +11,9 @@ Python code for the manim animations from [my youtube channel](https://www.youtu
 sudo apt install texlive-latex-base
 sudo apt install tex-live-latex-extra
 ```
+
+## Execution
+
+```bash
+manim -pql 0.py EpisodeScene
+```

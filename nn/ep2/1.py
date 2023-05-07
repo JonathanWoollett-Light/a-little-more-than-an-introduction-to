@@ -1,12 +1,15 @@
-from manim import *
+import random
+
 from ecommon import (
-    get_title_screen,
-    SCENE_WAIT,
     get_equations,
     get_highlight_box,
+    get_title_screen,
     rescale,
     retainTransform,
+    UP_SHIFT
 )
+from manim import *
+
 
 # Pooling
 class EpisodeScene(Scene):
@@ -21,7 +24,6 @@ class EpisodeScene(Scene):
         self,
         scale=0.5,
         label_spacing=0.5,
-        arrow_spacing=0.02,
         image_size=(4, 4),
         pool_size=(2, 2),
     ):
@@ -30,10 +32,10 @@ class EpisodeScene(Scene):
 
         subtitle = Text("Max pooling")
         subtitle.scale(0.6)
-        subtitle.shift(2.6 * UP)
+        subtitle.shift(UP_SHIFT * UP)
 
         equation = MathTex(
-            r"\max(\{{in_{ih+m,jw+n} | n∪m⊆ℤ, 1 \leq m \leq h, 1 \leq n \leq w}\}) = out_{i+1,j+1}"
+            r"\max(\{{in_{ih+m,jw+n} | n\cup m\subseteq \mathbb{Z}, 1 \leq m \leq h, 1 \leq n \leq w}\}) = out_{i+1,j+1}"
         )
         equation.scale(scale)
 
@@ -145,9 +147,13 @@ class EpisodeScene(Scene):
             Write(equation),
         )
 
-        highlight = Rectangle(
-            color=YELLOW, height=temp.get_height(), width=temp.get_width()
-        )  # .set_fill(YELLOW, opacity=0.1)
+        highlight = get_highlight_box(temp, buffer=0)
+        output_highlight = Rectangle(
+            stroke_width=2,
+            color=YELLOW,
+            height=element_size[1],
+            width=element_size[0],
+        )
 
         calculation = MathTex("placeholder")
 
@@ -158,7 +164,7 @@ class EpisodeScene(Scene):
                 range(0, image_size[0], pool_size[0]), range(0, new_image_size[0])
             ):
                 # Sets image index
-                img_indx = xi + yi * image_size[0]
+                img_index = xi + yi * image_size[0]
 
                 # Sets calculation string
                 max_of = "max("
@@ -173,11 +179,14 @@ class EpisodeScene(Scene):
                 max_of += ")=" + str(max_val)
 
                 # Sets pooled image index
-                pooled_img_indx = xni + yni * new_image_size[0]
+                pooled_img_index = xni + yni * new_image_size[0]
 
                 if xi == 0 and yi == 0:
                     # Sets highlight
-                    highlight.move_to(image[0][img_indx].get_center() + shift)
+                    highlight.move_to(image[0][img_index].get_center() + shift)
+                    output_highlight.move_to(
+                        new_image[0][pooled_img_index].get_center()
+                    )
 
                     # Sets calculation string
                     calculation = MathTex(max_of)
@@ -193,33 +202,21 @@ class EpisodeScene(Scene):
                         ]
                     )
 
-                    # Sets arrow
-                    arrow = Arrow(
-                        temp.get_center()
-                        + [temp.get_width() / 2 + arrow_spacing, 0, 0],
-                        new_image[0][pooled_img_indx].get_center()
-                        - [
-                            new_image[0][pooled_img_indx].get_width() / 2
-                            + arrow_spacing,
-                            0,
-                            0,
-                        ],
-                        stroke_width=5,
-                        max_tip_length_to_length_ratio=0.07,
-                    )
-                    arrow.fade(0.5)
-
                     # Writes
                     self.play(
+                        Write(output_highlight),
                         Write(highlight),
                         Write(temp[0]),
                         Write(calculation),
-                        Write(arrow),
                     )
                 else:
                     # Sets highlight
                     new_highlight = highlight.copy()
-                    new_highlight.move_to(image[0][img_indx].get_center() + shift)
+                    new_highlight.move_to(image[0][img_index].get_center() + shift)
+                    new_output_highlight = output_highlight.copy()
+                    new_output_highlight.move_to(
+                        new_image[0][pooled_img_index].get_center()
+                    )
 
                     # Sets receptive field
                     temp_vals = [
@@ -238,33 +235,17 @@ class EpisodeScene(Scene):
                     new_calculation.scale(scale)
                     new_calculation.move_to(calculation.get_center())
 
-                    # Sets arrow
-                    new_arrow = Arrow(
-                        temp.get_center()
-                        + [temp.get_width() / 2 + arrow_spacing, 0, 0],
-                        new_image[0][pooled_img_indx].get_center()
-                        - [
-                            new_image[0][pooled_img_indx].get_width() / 2
-                            + arrow_spacing,
-                            0,
-                            0,
-                        ],
-                        stroke_width=5,
-                        max_tip_length_to_length_ratio=0.07,
-                    )
-                    new_arrow.fade(0.5)
-
                     # Writes
                     self.play(
+                        Transform(output_highlight, new_output_highlight),
                         Transform(highlight, new_highlight),
                         Transform(temp[0], new_temp[0]),
                         Transform(calculation, new_calculation),
-                        Transform(arrow, new_arrow),
                     )
 
                 resul_obj = MathTex(str(max_val))
                 resul_obj.scale(scale)
-                resul_obj.move_to(new_image[0][pooled_img_indx].get_center())
+                resul_obj.move_to(new_image[0][pooled_img_index].get_center())
                 self.play(Write(resul_obj))
 
                 self.wait()

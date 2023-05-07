@@ -1,17 +1,19 @@
-from manim import *
 from ecommon import (
-    get_title_screen,
-    SCENE_WAIT,
     get_equations,
+    get_explicit_conv_net,
     get_highlight_box,
+    get_title_screen,
     rescale,
     retainTransform,
+    setup,
 )
+from manim import *
 
-# Convolutional backprop
+
+# Convolutional foreprop
 class EpisodeScene(Scene):
     def play_intro(self):
-        title_scene = get_title_screen(2.3, "Convolutional backpropagation")
+        title_scene = get_title_screen(2.2, "Convolutional forepropagation")
 
         self.add(title_scene)
         self.wait(2)
@@ -22,12 +24,8 @@ class EpisodeScene(Scene):
             equations=[
                 r"a^{l+1} = A(z^l)",
                 r"z^l = w^l a^l + b^l",
-                r"\delta^L = \nabla_a C \odot A'(z^L)",
-                r"\delta^l = a",
-                r"\frac{\partial C}{\partial b^l} = \delta^l",
-                r"\frac{\partial C}{\partial w^l_{m,n}} = \delta_l \odot \frac{\partial z^l}{\partial w^l}",  #
+                r"z^l_{i,j} = (a^l * w^l)_{i,j} + b^l",  #
             ],
-            wheres=[r"\delta_l = \frac{\partial C}{\partial z^l}"],
             scale=0.5,
         )  #
 
@@ -80,7 +78,7 @@ class EpisodeScene(Scene):
             starting,
         ) = setup(scale=scale, h_buff=h_buff)
 
-        j2 = Matrix([1, 1], h_buff=h_buff).set_color(GREY)
+        j2 = Matrix([[1], [1]], h_buff=h_buff).set_color(GREY)
         j2.scale(scale)
 
         everything.move_to(
@@ -253,7 +251,7 @@ class EpisodeScene(Scene):
         b21_highlight = get_highlight_box(b2[0], buffer=0.1)
         self.play(Write(f21_highlight), Write(b21_highlight))
 
-        j2 = Matrix([1, 1], h_buff=h_buff).set_color(GREY)
+        j2 = Matrix([[1], [1]], h_buff=h_buff).set_color(GREY)
         j2.scale(scale)
 
         calculation = VGroup(
@@ -420,7 +418,7 @@ class EpisodeScene(Scene):
         )
         calculation.arrange()
 
-        flattened = Matrix([2, 1, 3, 2, 5, 3], h_buff=h_buff)
+        flattened = Matrix([[2], [1], [3], [2], [5], [3]], h_buff=h_buff)
         flattened.scale(scale)
         flattened.move_to(flat.get_center())
 

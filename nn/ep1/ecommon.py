@@ -1,16 +1,17 @@
-import sys, os
+import os
+import sys
 
 sys.path.append(os.path.abspath(os.path.join("..")))
 
+from manim import *
 from scommon import (
-    get_title_screen,
-    SCENE_WAIT,
     get_equations,
     get_highlight_box,
+    get_title_screen,
     rescale,
     retainTransform,
 )
-from manim import *
+
 
 # Gets an xor net
 def get_xor_net(text_scale, vertical_spacing, horizontal_spacing):
