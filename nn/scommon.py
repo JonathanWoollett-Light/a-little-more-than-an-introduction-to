@@ -56,7 +56,7 @@ def get_equations(equations, wheres=[], buffer=1, scale=0.5, where_scale=0.8):
 
 
 # Gets yellow box around thing
-def get_highlight_box(x, buffer=0.3, stroke_width=2):
+def get_highlight_box(x, buffer=0.2, stroke_width=2):
     box = Rectangle(
         stroke_width=stroke_width,
         color=YELLOW,

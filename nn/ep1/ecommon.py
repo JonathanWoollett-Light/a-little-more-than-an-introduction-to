@@ -14,18 +14,32 @@ from scommon import (
 
 
 # Gets an xor net
-def get_xor_net(text_scale, vertical_spacing, horizontal_spacing):
+def get_xor_net(
+    text_scale, vertical_spacing, horizontal_spacing, edge_width=2, node_width=2
+):
     inputs = VGroup(
-        *[Circle(radius=0.15, stroke_color=WHITE, stroke_width=1) for i in range(0, 2)]
+        *[
+            Circle(radius=0.15, stroke_color=WHITE, stroke_width=node_width)
+            for i in range(0, 2)
+        ]
     )
     inputs.arrange(DOWN, buff=vertical_spacing)
     hidden = VGroup(
-        *[Circle(radius=0.15, stroke_color=WHITE, stroke_width=1) for i in range(0, 3)]
+        *[
+            Circle(radius=0.15, stroke_color=WHITE, stroke_width=node_width)
+            for i in range(0, 3)
+        ]
     )
     hidden.arrange(DOWN, buff=vertical_spacing)
     outputs = VGroup(
-        VGroup(Circle(radius=0.15, stroke_color=WHITE, stroke_width=1), Text("False")),
-        VGroup(Circle(radius=0.15, stroke_color=WHITE, stroke_width=1), Text("True")),
+        VGroup(
+            Circle(radius=0.15, stroke_color=WHITE, stroke_width=node_width),
+            Text("False"),
+        ),
+        VGroup(
+            Circle(radius=0.15, stroke_color=WHITE, stroke_width=node_width),
+            Text("True"),
+        ),
     )
     for group in outputs:
         group[1].scale(text_scale)
@@ -37,14 +51,14 @@ def get_xor_net(text_scale, vertical_spacing, horizontal_spacing):
 
     input_edges = VGroup(
         *[
-            Line(n1.get_center(), n2[0].get_center(), stroke_width=1)
+            Line(n1.get_center(), n2[0].get_center(), stroke_width=edge_width)
             for n1 in inputs
             for n2 in hidden
         ]
     )
     output_edges = VGroup(
         *[
-            Line(n1.get_center(), n2[0].get_center(), stroke_width=1)
+            Line(n1.get_center(), n2[0].get_center(), stroke_width=edge_width)
             for n1 in hidden
             for n2 in outputs
         ]

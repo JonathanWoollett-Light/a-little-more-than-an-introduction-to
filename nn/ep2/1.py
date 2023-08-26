@@ -6,7 +6,7 @@ from ecommon import (
     get_title_screen,
     rescale,
     retainTransform,
-    UP_SHIFT
+    UP_SHIFT,
 )
 from manim import *
 

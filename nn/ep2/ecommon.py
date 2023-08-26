@@ -14,6 +14,7 @@ from scommon import (
 
 UP_SHIFT = 2.4
 
+
 def get_explicit_conv_net(
     in_shape,  # (y,x)/(m,n)
     conv_layers,
@@ -165,6 +166,7 @@ def setup(scale, h_buff, distance=0.3, buff=0.4):
     )
 
     return (a1, f1, b1, z1, a2, f2, b2, z2, a3, w1, b3, z3, a4, everything, starting)
+
 
 # Given some items, aligns them along z axis.
 def set_layers(layers, distance=0.1, gradient=0.9, scaling=1):
