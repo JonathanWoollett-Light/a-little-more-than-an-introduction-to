@@ -575,6 +575,7 @@ class EpisodeScene(Scene):
         filt_vals,
         equation,
         written,
+        bias,
         bias_item,
         image_size=(3, 3),
         filter_size=(2, 2),
@@ -607,7 +608,7 @@ class EpisodeScene(Scene):
 
         # Sets equation
         new_equation = MathTex(
-            r"out_{i,j} = (in * filters)_{i,j} = \sum_{l=1}^d \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n,l} \cdot filter_{m,n,l} + b"
+            r"out_{i,j,l} = (in * filters)_{i,j} = \sum_{l=1}^d \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n,k} \cdot filter_{m,n,l} + b_l"
         )
         new_equation.scale(scale)
         new_equation.move_to(equation.get_center())
@@ -619,7 +620,8 @@ class EpisodeScene(Scene):
             ReplacementTransform(equation, new_equation),
         )
 
-        # Sets and writes new layers to image, filter and local receptive field
+        # Sets new layers in image
+        image_vals = [image_vals.copy() for _ in range(input_layers)]
         images = VGroup(*[image.copy() for _ in range(input_layers)])
         _lines = set_layers(images)
 
@@ -659,9 +661,16 @@ class EpisodeScene(Scene):
         filters_highlight = get_highlight_box(filters[0], buffer=0.1)
 
         # Sets biases
-        biases = VGroup(
-            *[bias_item] + [bias_item.copy() for _ in range(number_of_filters - 1)]
-        )
+        bias_values = [bias] + [
+            random.randint(0, 2) for _ in range(number_of_filters - 1)
+        ]
+
+        biases = VGroup()
+        biases.add(bias_item)
+        for b in bias_values[1:]:
+            bt = MathTex(b)
+            bt.scale(scale)
+            biases.add(bt)
         _lines = set_layers(biases)
 
         # Sets bias highlight box
@@ -716,8 +725,8 @@ class EpisodeScene(Scene):
             if zi == 0:
                 self.play(Write(bias_highlight), Write(filters_highlight))
             else:
-                new_bias_highlight = get_highlight_box(biases[zi])
-                new_filters_highlight = get_highlight_box(filters[zi])
+                new_bias_highlight = get_highlight_box(biases[zi], buffer=0.2)
+                new_filters_highlight = get_highlight_box(filters[zi], buffer=0.1)
                 self.play(
                     Transform(bias_highlight, new_bias_highlight),
                     Transform(filters_highlight, new_filters_highlight),
@@ -728,32 +737,30 @@ class EpisodeScene(Scene):
                     image_index = xi + yi * image_size[0]
 
                     # Sets local receptive field
-                    receptive_field_values = [
-                        [
-                            image_vals[(xi + x) + (yi + y) * image_size[0]]
-                            for x in range(filter_size[0])
-                        ]
-                        for y in range(filter_size[1])
-                    ]
-                    new_receptive_field = Matrix(receptive_field_values).set_color(
-                        YELLOW
-                    )
-                    new_receptive_field.scale(scale)
-                    new_receptive_field.move_to(receptive_fields[0].get_center())
-                    new_receptive_fields = VGroup(
-                        *[new_receptive_field.copy() for i in range(input_layers)]
-                    )
+                    new_receptive_fields = VGroup()
+                    for z in range(input_layers):
+                        xy_receptive_field = Matrix(
+                            [
+                                [
+                                    image_vals[z][(xi + x) + (yi + y) * image_size[0]]
+                                    for x in range(filter_size[0])
+                                ]
+                                for y in range(filter_size[1])
+                            ]
+                        ).set_color(YELLOW)
+                        new_receptive_fields.add(xy_receptive_field)
+                    new_receptive_fields.scale(scale)
                     _lines = set_layers(new_receptive_fields)
+                    new_receptive_fields.move_to(receptive_fields.get_center())
 
                     # Define calculation string
                     multiplying = ["" for i in range(input_layers)]
-                    result = 0
+                    result = bias_values[zi]
                     for z in range(input_layers):
-                        multiplying[z] += "["
                         for y in range(filter_size[1]):
                             for x in range(filter_size[0]):
                                 filter_value = filt_vals[x + y * filter_size[0]]
-                                image_value = image_vals[
+                                image_value = image_vals[z][
                                     (xi + x) + (yi + y) * image_size[0]
                                 ]
 
@@ -767,9 +774,10 @@ class EpisodeScene(Scene):
 
                                 result += filter_value * image_value
                                 if x == filter_size[0] - 1 and y == filter_size[1] - 1:
-                                    multiplying[z] += "]"
                                     if z == input_layers - 1:
-                                        multiplying[z] += " = " + str(result)
+                                        multiplying[z] += f"+{bias_values[zi]}={result}"
+                                    else:
+                                        multiplying[z] += "+"
                                 else:
                                     multiplying[z] += "+"
 
@@ -778,7 +786,7 @@ class EpisodeScene(Scene):
                     if zi == 0 and xi == 0 and yi == 0:
                         # Sets highlight
                         highlight.move_to(
-                            images[zi].get_entries()[image_index].get_center() + shift
+                            images[0].get_entries()[image_index].get_center() + shift
                         )
                         input_highlights = VGroup(
                             *[highlight.copy() for i in range(input_layers)]
@@ -791,7 +799,9 @@ class EpisodeScene(Scene):
                         # Sets calculation
                         calculation = VGroup(*[MathTex(line) for line in multiplying])
                         calculation.scale(scale)
-                        calculation.arrange(DOWN, buff=0.2)
+                        calculation.arrange(
+                            DOWN, buff=0.2, center=False, aligned_edge=LEFT
+                        )
                         calculation.move_to(
                             equation.get_center()
                             - [
@@ -903,6 +913,7 @@ class EpisodeScene(Scene):
             filt_vals,
             equation,
             written,
+            bias,
             bias_item,
         )
 
