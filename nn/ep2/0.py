@@ -40,44 +40,39 @@ class EpisodeScene(Scene):
             r"out_{i,j} = (in * filter)_{i,j} = \bigl( \sum_{m=1}^h \sum_{n=1}^w (in_{i+m,j+n} \cdot filter_{m,n}) \bigr) + b"
         )
         matrix_equation = MathTex(r"out = in * filter = in \cdot filter^T + b J_{h,w}")
-        equation = VGroup(component_wise_equation, matrix_equation)
-        equation.arrange(DOWN)
-        equation.scale(scale)
+        equation = (
+            VGroup(component_wise_equation, matrix_equation).scale(scale).arrange(DOWN)
+        )
 
-        image_vals = [
+        image_values = [
             [random.randint(0, 2) for x in range(image_size[0])]
             for y in range(image_size[1])
         ]
-        image = Matrix(image_vals)
-        image_vals = sum(image_vals, [])
-        img_label = Text("Image/Input")
-        img_label.scale(scale)
+        image = Matrix(image_values)
+        image_values = sum(image_values, [])  # Flattens the array
+        img_label = Text("Image/Input").scale(scale)
 
         # Sets image axis labels
-        filter_rows = MathTex(r"h")
-        filter_cols = MathTex(r"w")
-        filter_rows.scale(scale)
-        filter_cols.scale(scale)
+        filter_rows = MathTex(r"h").scale(scale)
+        filter_cols = MathTex(r"w").scale(scale)
 
-        filt_vals = [
+        filter_matrix_values = [
             [random.randint(0, 1) for x in range(filter_size[0])]
             for y in range(filter_size[1])
         ]
-        filt = Matrix(filt_vals)
-        filt_vals = sum(filt_vals, [])
-        filt_label = Text("Filter/Kernel")
-        filt_label.scale(scale)
+        filter_matrix = Matrix(filter_matrix_values).set_color(BLUE)
+        filter_matrix_values = sum(filter_matrix_values, [])  # Flattens the array
+        filter_label = Text("Filter/Kernel").scale(scale)
 
         receptive_field = Matrix(
             [[0 for x in range(filter_size[0])] for y in range(filter_size[1])]
         ).set_color(YELLOW)
 
         bias = random.randint(1, 2)
-        bias_item = MathTex(bias)
-        filt_group = VGroup(
-            filt, MathTex("\odot"), receptive_field, MathTex("+"), bias_item
-        )
-        filt_group.arrange(buff=0.5)
+        bias_item = MathTex(bias).set_color(RED)
+        filter_group = VGroup(
+            filter_matrix, MathTex("\odot"), receptive_field, MathTex("+"), bias_item
+        ).arrange(buff=0.5)
 
         feature_size = (
             image_size[0] - filter_size[0] + 1,
@@ -86,31 +81,27 @@ class EpisodeScene(Scene):
         feature = Matrix(
             [[0 for x in range(feature_size[0])] for y in range(feature_size[1])]
         )
-        feature_label = Text("Feature/Output")
-        feature_label.scale(scale)
+        feature_label = Text("Feature/Output").scale(scale)
 
-        scene = VGroup(image, filt_group, feature)
-        scene.arrange(buff=3)
-
-        scene.scale(scale)
+        scene = VGroup(image, filter_group, feature).arrange(buff=3).scale(scale)
 
         calculation = VGroup(*[MathTex("placeholder") for i in range(filter_size[1])])
 
         self.play(
             Write(image),
-            Write(filt_group[0:2]),
-            Write(filt_group[3:5]),
+            Write(filter_group[0:2]),
+            Write(filter_group[3:5]),
             Write(receptive_field.get_brackets()),
             Write(feature.get_brackets()),
         )
 
         element_size = [
-            filt.get_width() / filter_size[0],
-            filt.get_height() / filter_size[1],
+            filter_matrix.get_width() / filter_size[0],
+            filter_matrix.get_height() / filter_size[1],
         ]
         shift = [
-            filt.get_width() / 2 - element_size[0] / 2,
-            -filt.get_height() / 2 + element_size[1] / 2,
+            filter_matrix.get_width() / 2 - element_size[0] / 2,
+            -filter_matrix.get_height() / 2 + element_size[1] / 2,
             0,
         ]
 
@@ -125,12 +116,12 @@ class EpisodeScene(Scene):
                 0,
             ]
         )
-        filt_label.move_to(
-            filt.get_center()
+        filter_label.move_to(
+            filter_matrix.get_center()
             + [
                 0,
-                filt.get_height() / 2
-                + filt_label.get_height() / 2
+                filter_matrix.get_height() / 2
+                + filter_label.get_height() / 2
                 + label_spacing
                 + element_size[1],
                 0,
@@ -149,18 +140,20 @@ class EpisodeScene(Scene):
         )
 
         filter_rows.move_to(
-            filt.get_center()
+            filter_matrix.get_center()
             - [
-                filt.get_width() / 2 + filter_rows.get_width() / 2 + label_spacing / 4,
+                filter_matrix.get_width() / 2
+                + filter_rows.get_width() / 2
+                + label_spacing / 4,
                 0,
                 0,
             ]
         )
         filter_cols.move_to(
-            filt.get_center()
+            filter_matrix.get_center()
             - [
                 0,
-                filt.get_height() / 2
+                filter_matrix.get_height() / 2
                 + filter_cols.get_height() / 2
                 + label_spacing / 4,
                 0,
@@ -168,17 +161,19 @@ class EpisodeScene(Scene):
         )
 
         equation.move_to(
-            filt_group.get_center()
+            filter_group.get_center()
             - [
                 0,
-                filt_group.get_height() / 2 + equation.get_height() / 2 + label_spacing,
+                filter_group.get_height() / 2
+                + equation.get_height() / 2
+                + label_spacing,
                 0,
             ]
         )
 
         self.play(
             Write(img_label),
-            Write(filt_label),
+            Write(filter_label),
             Write(feature_label),
             Write(filter_rows),
             Write(filter_cols),
@@ -188,7 +183,7 @@ class EpisodeScene(Scene):
         written = []
 
         # Get highlight boxes
-        highlight = get_highlight_box(filt, buffer=0)
+        highlight = get_highlight_box(filter_matrix, buffer=0)
         output_highlight = Rectangle(
             stroke_width=2,
             color=YELLOW,
@@ -204,35 +199,38 @@ class EpisodeScene(Scene):
                 # Gets and sets values in local receptive field
                 receptive_field_values = [
                     [
-                        image_vals[(xi + x) + (yi + y) * image_size[0]]
+                        image_values[(xi + x) + (yi + y) * image_size[0]]
                         for x in range(filter_size[0])
                     ]
                     for y in range(filter_size[1])
                 ]
-                new_receptive_field = Matrix(receptive_field_values).set_color(YELLOW)
-                new_receptive_field.scale(scale)
+                new_receptive_field = (
+                    Matrix(receptive_field_values).set_color(YELLOW).scale(scale)
+                )
                 new_receptive_field.move_to(receptive_field.get_center())
 
                 # Gets result and calculation string
-                multiplying = ""
+                multiplying = VGroup()
                 result = bias
                 for y in range(filter_size[1]):
                     for x in range(filter_size[0]):
-                        filter_value = filt_vals[x + y * filter_size[0]]
-                        image_value = image_vals[(xi + x) + (yi + y) * image_size[0]]
+                        filter_value = filter_matrix_values[x + y * filter_size[0]]
+                        image_value = image_values[(xi + x) + (yi + y) * image_size[0]]
 
-                        multiplying += (
-                            "(" + str(filter_value) + "\\cdot" + str(image_value) + ")"
-                        )
+                        multiplying.add(MathTex("("))
+                        multiplying.add(MathTex(str(filter_value)).set_color(BLUE))
+                        multiplying.add(MathTex("\\cdot"))
+                        multiplying.add(MathTex(str(image_value)).set_color(YELLOW))
+                        multiplying.add(MathTex(")+"))
 
                         result += filter_value * image_value
-
-                        multiplying += "+"
                         if x == filter_size[0] - 1 and y == filter_size[1] - 1:
-                            multiplying += str(bias) + " = " + str(result)
+                            multiplying.add(MathTex(str(bias)).set_color(RED))
+                            multiplying.add(MathTex(f"={result}"))
 
-                # Gets index in feature
-                feature_index = xi + yi * feature_size[0]
+                multiplying.arrange(RIGHT, buff=0.1)
+                multiplying.scale(scale)
+                feature_index = xi + yi * feature_size[0]  # Gets index in feature
 
                 if xi == 0 and yi == 0:
                     # Sets highlight
@@ -240,8 +238,7 @@ class EpisodeScene(Scene):
                     output_highlight.move_to(feature[0][feature_index].get_center())
 
                     # Sets calculation string
-                    calculation = MathTex(multiplying)
-                    calculation.scale(scale)
+                    calculation = multiplying
                     calculation.move_to(
                         equation.get_center()
                         - [
@@ -270,8 +267,7 @@ class EpisodeScene(Scene):
                     new_output_highlight.move_to(feature[0][feature_index].get_center())
 
                     # Sets calculation string
-                    new_calculation = MathTex(multiplying)
-                    new_calculation.scale(scale)
+                    new_calculation = multiplying
                     new_calculation.move_to(calculation.get_center())
 
                     # Writes
@@ -286,11 +282,10 @@ class EpisodeScene(Scene):
                     )
 
                 # Sets and writes result
-                resul_obj = MathTex(str(result))
-                resul_obj.scale(scale)
-                resul_obj.move_to(feature[0][feature_index].get_center())
-                self.play(Write(resul_obj))
-                written.append(resul_obj)
+                result_object = MathTex(str(result)).scale(scale)
+                result_object.move_to(feature[0][feature_index].get_center())
+                self.play(Write(result_object))
+                written.append(result_object)
 
                 self.wait()
 
@@ -306,12 +301,12 @@ class EpisodeScene(Scene):
         return (
             image,
             feature,
-            filt,
+            filter_matrix,
             receptive_field,
             image_size,
             filter_size,
-            image_vals,
-            filt_vals,
+            image_values,
+            filter_matrix_values,
             equation,
             written,
             bias,
@@ -322,20 +317,19 @@ class EpisodeScene(Scene):
         self,
         image,
         feature,
-        filt,
+        filter_matrix,
         receptive_field,
         image_size,
         filter_size,
-        image_vals,
-        filt_vals,
+        image_values,
+        filter_matrix_values,
         equation,
         bias,
         label_spacing=0.5,
         scale=0.5,
     ):
         # Sets and writes subtitle
-        subtitle = Text("Zero padding")
-        subtitle.scale(0.6)
+        subtitle = Text("Zero padding").scale(0.6)
         subtitle.shift(UP_SHIFT * UP)
         self.play(Write(subtitle))
 
@@ -360,11 +354,10 @@ class EpisodeScene(Scene):
                     holder.append(0)
                 else:
                     holder.append(
-                        image_vals[(x - buffer[0]) + (y - buffer[1]) * image_size[0]]
+                        image_values[(x - buffer[0]) + (y - buffer[1]) * image_size[0]]
                     )
             padded_image_vals.append(holder)
-        padded_image = Matrix(padded_image_vals)
-        padded_image.scale(scale)
+        padded_image = Matrix(padded_image_vals).scale(scale)
         padded_image.move_to(image.get_center())
 
         # Sets group containing all the padding zeros
@@ -386,7 +379,7 @@ class EpisodeScene(Scene):
         image_holder = image.copy()
 
         # Flattens image values
-        image_vals = sum(padded_image_vals, [])
+        image_values = sum(padded_image_vals, [])
 
         # Sets new feature
         feature_size = (
@@ -400,8 +393,7 @@ class EpisodeScene(Scene):
                 ]  # `0` simply being used as placeholder value
                 for y in range(feature_size[1])
             ]
-        )
-        padded_feature.scale(scale)
+        ).scale(scale)
         padded_feature.move_to(feature.get_center())
 
         # Transforms brackets but retains copy of old brackets
@@ -417,12 +409,12 @@ class EpisodeScene(Scene):
 
         # Sets element size and needed highlight shift
         element_size = [
-            filt.get_width() / filter_size[0],
-            filt.get_height() / filter_size[1],
+            filter_matrix.get_width() / filter_size[0],
+            filter_matrix.get_height() / filter_size[1],
         ]
         shift = [
-            filt.get_width() / 2 - element_size[0] / 2,
-            -filt.get_height() / 2 + element_size[1] / 2,
+            filter_matrix.get_width() / 2 - element_size[0] / 2,
+            -filter_matrix.get_height() / 2 + element_size[1] / 2,
             0,
         ]
 
@@ -430,7 +422,7 @@ class EpisodeScene(Scene):
         written = []
 
         # Gets highlight boxes
-        highlight = get_highlight_box(filt, buffer=0)
+        highlight = get_highlight_box(filter_matrix, buffer=0)
         output_highlight = Rectangle(
             stroke_width=2,
             color=YELLOW,
@@ -446,37 +438,38 @@ class EpisodeScene(Scene):
                 # Gets  and sets local receptive field values
                 receptive_field_values = [
                     [
-                        image_vals[(xi + x) + (yi + y) * padded_image_size[0]]
+                        image_values[(xi + x) + (yi + y) * padded_image_size[0]]
                         for x in range(filter_size[0])
                     ]
                     for y in range(filter_size[1])
                 ]
-                new_receptive_field = Matrix(receptive_field_values).set_color(YELLOW)
-                new_receptive_field.scale(scale)
+                new_receptive_field = (
+                    Matrix(receptive_field_values).set_color(YELLOW).scale(scale)
+                )
                 new_receptive_field.move_to(receptive_field.get_center())
 
                 # Defines calculation string
-                multiplying = ""
+                multiplying = VGroup()
                 result = bias
-
                 for y in range(filter_size[1]):
                     for x in range(filter_size[0]):
-                        filter_value = filt_vals[x + y * filter_size[0]]
-                        image_value = image_vals[
-                            (xi + x) + (yi + y) * padded_image_size[0]
-                        ]
+                        filter_value = filter_matrix_values[x + y * filter_size[0]]
+                        image_value = image_values[(xi + x) + (yi + y) * image_size[0]]
 
-                        multiplying += (
-                            "(" + str(filter_value) + "\\cdot" + str(image_value) + ")"
-                        )
+                        multiplying.add(MathTex("("))
+                        multiplying.add(MathTex(str(filter_value)).set_color(BLUE))
+                        multiplying.add(MathTex("\\cdot"))
+                        multiplying.add(MathTex(str(image_value)).set_color(YELLOW))
+                        multiplying.add(MathTex(")+"))
 
                         result += filter_value * image_value
-
-                        multiplying += "+"
                         if x == filter_size[0] - 1 and y == filter_size[1] - 1:
-                            multiplying += str(bias) + " = " + str(result)
+                            multiplying.add(MathTex(str(bias)).set_color(RED))
+                            multiplying.add(MathTex(f"={result}"))
 
-                feature_index = xi + yi * feature_size[0]
+                multiplying.arrange(RIGHT, buff=0.1)
+                multiplying.scale(scale)
+                feature_index = xi + yi * feature_size[0]  # Gets index in feature
 
                 if xi == 0 and yi == 0:
                     # Sets highlight
@@ -486,8 +479,7 @@ class EpisodeScene(Scene):
                     )
 
                     # Sets calculation
-                    calculation = MathTex(multiplying)
-                    calculation.scale(scale)
+                    calculation = multiplying
                     calculation.move_to(
                         equation.get_center()
                         - [
@@ -520,8 +512,7 @@ class EpisodeScene(Scene):
                     )
 
                     # Sets calculation
-                    new_calculation = MathTex(multiplying)
-                    new_calculation.scale(scale)
+                    new_calculation = multiplying
                     new_calculation.move_to(calculation.get_center())
 
                     # Writes
@@ -542,11 +533,10 @@ class EpisodeScene(Scene):
                     or xi == feature_size[0] - 1
                     or yi == feature_size[1] - 1
                 ):
-                    resul_obj = MathTex(str(result))
-                    resul_obj.scale(scale)
-                    resul_obj.move_to(padded_feature[0][feature_index].get_center())
-                    self.play(Write(resul_obj))
-                    written.append(resul_obj)
+                    result_object = MathTex(str(result)).scale(scale)
+                    result_object.move_to(padded_feature[0][feature_index].get_center())
+                    self.play(Write(result_object))
+                    written.append(result_object)
                 self.wait()
 
         # Uncreates
@@ -569,10 +559,10 @@ class EpisodeScene(Scene):
         self,
         image,
         feature,
-        filt,
+        filter_matrix,
         receptive_field,
-        image_vals,
-        filt_vals,
+        image_values,
+        filter_matrix_values,
         equation,
         written,
         bias,
@@ -588,54 +578,59 @@ class EpisodeScene(Scene):
         self.play(Uncreate(written))
 
         # Sets subtitle
-        subtitle = Text("Channels")
-        subtitle.scale(0.6)
+        subtitle = Text("Channels").scale(0.6)
         subtitle.shift(UP_SHIFT * UP)
 
         # Sets filter depth label
-        filter_depth = MathTex(r"d")
-        filter_depth.scale(scale)
+        filter_depth = MathTex(r"d").scale(scale)
         filter_depth.move_to(
-            filt.get_center()
+            filter_matrix.get_center()
             - [
-                filt.get_width() / 2 + filter_depth.get_width() / 2 + label_spacing / 4,
-                filt.get_height() / 2
+                filter_matrix.get_width() / 2
+                + filter_depth.get_width() / 2
+                + label_spacing / 4,
+                filter_matrix.get_height() / 2
                 + filter_depth.get_height() / 2
                 + label_spacing / 4,
                 0,
             ]
         )
 
-        # Sets equation
-        new_equation = MathTex(
-            r"out_{i,j,l} = (in * filters)_{i,j} = \sum_{l=1}^d \sum_{m=1}^h \sum_{n=1}^w in_{i+m,j+n,k} \cdot filter_{m,n,l} + b_l"
-        )
-        new_equation.scale(scale)
-        new_equation.move_to(equation.get_center())
-
         # Writes subtitle, depth label and equation
         self.play(
             Write(subtitle),
             Write(filter_depth),
-            ReplacementTransform(equation, new_equation),
+            Uncreate(equation),
         )
 
         # Sets new layers in image
-        image_vals = [image_vals.copy() for _ in range(input_layers)]
-        images = VGroup(*[image.copy() for _ in range(input_layers)])
+        images = VGroup()
+        images.add(image)
+        image_values = [image_values]
+        for _ in range(input_layers - 1):
+            new_image_values = [
+                [random.randint(0, 2) for x in range(image_size[0])]
+                for y in range(image_size[1])
+            ]
+            new_image = Matrix(new_image_values).scale(scale)
+            images.add(new_image)
+            new_image_values = sum(new_image_values, [])  # Flattens the array
+            image_values.append(new_image_values)
         _lines = set_layers(images)
 
         # Sets new filters
-        filters = []
+        filters = VGroup()
+        filters.add(filter_matrix)
+        filter_matrix_values = [filter_matrix_values]
         for _ in range(number_of_filters - 1):
             new_filter_values = [
                 [random.randint(0, 1) for x in range(filter_size[0])]
                 for y in range(filter_size[1])
             ]
-            new_filter = Matrix(new_filter_values)
-            new_filter.scale(scale)
-            filters.append(new_filter)
-        filters = VGroup(*[filt] + filters)
+            new_filter = Matrix(new_filter_values).set_color(BLUE).scale(scale)
+            filters.add(new_filter)
+            new_filter_values = sum(new_filter_values, [])  # Flatten the array
+            filter_matrix_values.append(new_filter_values)
         _lines = set_layers(filters)
 
         # Sets feature size
@@ -651,8 +646,7 @@ class EpisodeScene(Scene):
                 [random.randint(0, 1) for x in range(feature_size[0])]
                 for y in range(feature_size[1])
             ]
-            new_feature = Matrix(new_feature_values)
-            new_feature.scale(scale)
+            new_feature = Matrix(new_feature_values).scale(scale)
             features.append(new_feature)
         features = VGroup(*[feature] + features)
         _lines = set_layers(features)
@@ -668,8 +662,7 @@ class EpisodeScene(Scene):
         biases = VGroup()
         biases.add(bias_item)
         for b in bias_values[1:]:
-            bt = MathTex(b)
-            bt.scale(scale)
+            bt = MathTex(b).set_color(RED).scale(scale)
             biases.add(bt)
         _lines = set_layers(biases)
 
@@ -702,17 +695,17 @@ class EpisodeScene(Scene):
 
         # Sets element size and highlight shift
         element_size = [
-            filt.get_width() / filter_size[0],
-            filt.get_height() / filter_size[1],
+            filter_matrix.get_width() / filter_size[0],
+            filter_matrix.get_height() / filter_size[1],
         ]
         shift = [
-            filt.get_width() / 2 - element_size[0] / 2,
-            -filt.get_height() / 2 + element_size[1] / 2,
+            filter_matrix.get_width() / 2 - element_size[0] / 2,
+            -filter_matrix.get_height() / 2 + element_size[1] / 2,
             0,
         ]
 
         # Sets highlight
-        highlight = get_highlight_box(filt, buffer=0)
+        highlight = get_highlight_box(filter_matrix, buffer=0)
         output_highlight = Rectangle(
             stroke_width=2,
             color=YELLOW,
@@ -742,7 +735,7 @@ class EpisodeScene(Scene):
                         xy_receptive_field = Matrix(
                             [
                                 [
-                                    image_vals[z][(xi + x) + (yi + y) * image_size[0]]
+                                    image_values[z][(xi + x) + (yi + y) * image_size[0]]
                                     for x in range(filter_size[0])
                                 ]
                                 for y in range(filter_size[1])
@@ -754,33 +747,43 @@ class EpisodeScene(Scene):
                     new_receptive_fields.move_to(receptive_fields.get_center())
 
                     # Define calculation string
-                    multiplying = ["" for i in range(input_layers)]
+                    multiplying = VGroup()
                     result = bias_values[zi]
                     for z in range(input_layers):
+                        multiplying_line = VGroup()
                         for y in range(filter_size[1]):
                             for x in range(filter_size[0]):
-                                filter_value = filt_vals[x + y * filter_size[0]]
-                                image_value = image_vals[z][
+                                filter_value = filter_matrix_values[zi][
+                                    x + y * filter_size[0]
+                                ]
+                                image_value = image_values[z][
                                     (xi + x) + (yi + y) * image_size[0]
                                 ]
 
-                                multiplying[z] += (
-                                    "("
-                                    + str(filter_value)
-                                    + "\\cdot"
-                                    + str(image_value)
-                                    + ")"
+                                multiplying_line.add(MathTex("("))
+                                multiplying_line.add(
+                                    MathTex(str(filter_value)).set_color(BLUE)
                                 )
-
+                                multiplying_line.add(MathTex("\\cdot"))
+                                multiplying_line.add(
+                                    MathTex(str(image_value)).set_color(YELLOW)
+                                )
+                                multiplying_line.add(MathTex(")+"))
                                 result += filter_value * image_value
-                                if x == filter_size[0] - 1 and y == filter_size[1] - 1:
-                                    if z == input_layers - 1:
-                                        multiplying[z] += f"+{bias_values[zi]}={result}"
-                                    else:
-                                        multiplying[z] += "+"
-                                else:
-                                    multiplying[z] += "+"
+                                if (
+                                    x == filter_size[0] - 1
+                                    and y == filter_size[1] - 1
+                                    and z == input_layers - 1
+                                ):
+                                    multiplying_line.add(
+                                        MathTex(str(bias_values[zi])).set_color(RED)
+                                    )
+                                    multiplying_line.add(MathTex(f"={result}"))
 
+                        multiplying_line.arrange(RIGHT, buff=0.1)
+                        multiplying.add(multiplying_line)
+                    multiplying.scale(scale)
+                    multiplying.arrange(DOWN, buff=0.2, center=False, aligned_edge=LEFT)
                     # Sets feature index
                     feature_index = xi + yi * feature_size[0]
                     if zi == 0 and xi == 0 and yi == 0:
@@ -797,11 +800,7 @@ class EpisodeScene(Scene):
                         )
 
                         # Sets calculation
-                        calculation = VGroup(*[MathTex(line) for line in multiplying])
-                        calculation.scale(scale)
-                        calculation.arrange(
-                            DOWN, buff=0.2, center=False, aligned_edge=LEFT
-                        )
+                        calculation = multiplying
                         calculation.move_to(
                             equation.get_center()
                             - [
@@ -823,24 +822,21 @@ class EpisodeScene(Scene):
                             Write(calculation),
                         )
                     else:
-                        # Sets highlight
+                        # Sets input highlight
                         distance = (
-                            images[zi].get_entries()[image_index].get_center()
+                            images[0].get_entries()[image_index].get_center()
                             - input_highlights[0].get_center()
                         )
                         new_input_highlights = input_highlights.copy()
                         new_input_highlights.shift(distance + shift)
+                        # Sets output highlight
                         new_output_highlight = output_highlight.copy()
                         new_output_highlight.move_to(
                             features[zi].get_entries()[feature_index].get_center()
                         )
 
                         # Sets calculation
-                        new_calculation = VGroup(
-                            *[MathTex(line) for line in multiplying]
-                        )
-                        new_calculation.scale(scale)
-                        new_calculation.arrange(DOWN, buff=0.2)
+                        new_calculation = multiplying
                         new_calculation.move_to(calculation.get_center())
 
                         # Writes
@@ -851,12 +847,11 @@ class EpisodeScene(Scene):
                             Transform(calculation, new_calculation),
                         )
                     # Writes feature value
-                    resul_obj = MathTex(str(result))
-                    resul_obj.scale(scale)
-                    resul_obj.move_to(
+                    result_object = MathTex(str(result)).scale(scale)
+                    result_object.move_to(
                         features[zi].get_entries()[feature_index].get_center()
                     )
-                    self.play(Write(resul_obj))
+                    self.play(Write(result_object))
                     self.wait()
         # Sets entries `VGroup` to draw.
         entries = VGroup()
@@ -879,12 +874,12 @@ class EpisodeScene(Scene):
         (
             image,
             feature,
-            filt,
+            filter_matrix,
             receptive_field,
             image_size,
             filter_size,
-            image_vals,
-            filt_vals,
+            image_values,
+            filter_matrix_values,
             equation,
             written,
             bias,
@@ -894,12 +889,12 @@ class EpisodeScene(Scene):
         image = self.play_padding_conv(
             image,
             feature,
-            filt,
+            filter_matrix,
             receptive_field,
             image_size,
             filter_size,
-            image_vals,
-            filt_vals,
+            image_values,
+            filter_matrix_values,
             equation,
             bias,
         )
@@ -907,10 +902,10 @@ class EpisodeScene(Scene):
         self.play_channels_conv(
             image,
             feature,
-            filt,
+            filter_matrix,
             receptive_field,
-            image_vals,
-            filt_vals,
+            image_values,
+            filter_matrix_values,
             equation,
             written,
             bias,
