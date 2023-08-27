@@ -11,6 +11,7 @@ from ecommon import (
 )
 from manim import *
 
+
 # Convolution
 class EpisodeScene(Scene):
     def play_intro(self):

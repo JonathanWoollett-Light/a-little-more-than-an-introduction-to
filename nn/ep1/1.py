@@ -12,7 +12,7 @@ from manim import *
 # Puts all centers of components of y vertically inline with centers of components of x.
 # Simply put, horizontally aligns components of y with components of x.
 def align_horizontally(x, y):
-    for (xc, yc) in zip(x, y):
+    for xc, yc in zip(x, y):
         yc.move_to([xc.get_x(), yc.get_y(), yc.get_z()])
 
 
@@ -52,7 +52,6 @@ class EpisodeScene(Scene):
         return (title, side_equations)
 
     def play_backpropagation(self, title, side_equations, store_scale=0.3):
-
         # Sets up matrices with values
         # ----------------------------------------------------------
         a1 = Matrix([["0"], ["1"]], h_buff=1.2)
@@ -633,7 +632,6 @@ class EpisodeScene(Scene):
         self.wait()
 
     def construct(self):
-
         # Scene 1: Title screen
         # -----------------------------
         self.play_intro()

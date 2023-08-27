@@ -3,6 +3,7 @@ from manim import *
 # Episodes are numbered with major and minor numbers (e.g. 1.x covers dense nets (func names being 1_0,1_1,etc.), 2.x covers conv nets)
 # Utility functions are defined just before the 1st episode in which they are used
 
+
 # Gets title screen
 def get_title_screen(episodeNumber, episodeDescription):
     super_title = Text("A little more than an introduction to:")
@@ -26,7 +27,7 @@ def get_equations(equations, wheres=[], buffer=1, scale=0.5, where_scale=0.8):
 
     if len(wheres) > 0:
         wheresList = [r"Where: \hspace{6pt}"]
-        for (i, eqStr) in enumerate(wheres):
+        for i, eqStr in enumerate(wheres):
             wheresList.append(eqStr)
             if i != len(wheres) - 1:  # For all but last element add `,` after
                 wheresList.append(", ")

@@ -61,7 +61,7 @@ class EpisodeScene(Scene):
         # Movement of unarranged things
 
         simd_out_post.move_to(simd_out_pre.get_center())
-        for (post, pre) in zip(sisd_out_post, sisd_out_pre):
+        for post, pre in zip(sisd_out_post, sisd_out_pre):
             post.move_to(pre.get_center())
 
         self.play(Write(scene))

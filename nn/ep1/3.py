@@ -53,7 +53,6 @@ class EpisodeScene(Scene):
         equation_scale=0.3,
         equation_buffer=0.1,
     ):
-
         # Sets up matrices with values
         # ----------------------------------------------------------
         a1 = Matrix([["0", "0", "1", "1"], ["0", "1", "0", "1"]], h_buff=0.6)
@@ -571,7 +570,6 @@ class EpisodeScene(Scene):
         self.wait()
 
     def construct(self):
-
         # Scene 1: Title screen
         # -----------------------------
         self.play_intro()
