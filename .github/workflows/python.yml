@@ -1,0 +1,12 @@
+on:
+  push:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Black
+      run: |
+        pip install black
+        black --check .
