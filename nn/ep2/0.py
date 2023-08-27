@@ -11,14 +11,22 @@ from ecommon import (
 )
 from manim import *
 
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.gtts import GTTSService
+
 
 # Convolution
-class EpisodeScene(Scene):
+class EpisodeScene(VoiceoverScene):
     def play_intro(self):
         title_scene = get_title_screen(2.0, "Convolution")
 
-        self.add(title_scene)
-        self.wait(2)
+        with self.voiceover(
+            text=(
+                "In this video I am going to cover foreprogation in convolutional"
+                " layers."
+            )
+        ) as tracker:
+            self.play(Write(title_scene))
         self.play(Uncreate(title_scene))
 
     def play_conv(
@@ -38,7 +46,8 @@ class EpisodeScene(Scene):
         # biases are there.
         # <https://www.cs.toronto.edu/~lczhang/360/lec/w04/convnet.html#:~:text=Parameters%20of%20a%20Convolutional%20Layer&text=There%20is%20one%20bias%20for,Nevertheless%2C%20the%20biases%20are%20there.>
         component_wise_equation = MathTex(
-            r"out_{i,j} = (in * filter)_{i,j} = \bigl( \sum_{m=1}^h \sum_{n=1}^w (in_{i+m,j+n} \cdot filter_{m,n}) \bigr) + b"
+            r"out_{i,j} = (in * filter)_{i,j} = \bigl( \sum_{m=1}^h \sum_{n=1}^w"
+            r" (in_{i+m,j+n} \cdot filter_{m,n}) \bigr) + b"
         )
         matrix_equation = MathTex(r"out = in * filter = in \cdot filter^T + b J_{h,w}")
         equation = (
@@ -87,14 +96,6 @@ class EpisodeScene(Scene):
         scene = VGroup(image, filter_group, feature).arrange(buff=3).scale(scale)
 
         calculation = VGroup(*[MathTex("placeholder") for i in range(filter_size[1])])
-
-        self.play(
-            Write(image),
-            Write(filter_group[0:2]),
-            Write(filter_group[3:5]),
-            Write(receptive_field.get_brackets()),
-            Write(feature.get_brackets()),
-        )
 
         element_size = [
             filter_matrix.get_width() / filter_size[0],
@@ -171,15 +172,33 @@ class EpisodeScene(Scene):
                 0,
             ]
         )
-
-        self.play(
-            Write(img_label),
-            Write(filter_label),
-            Write(feature_label),
-            Write(filter_rows),
-            Write(filter_cols),
-            Write(equation),
-        )
+        with self.voiceover(
+            text=(
+                "Large dense layers are slow. Convolutional layers are often more"
+                " performant. Convolutional layers embed data in how they operate. It"
+                " is like a dense layer removing connections between layers that are"
+                " between neurons that represent spatially distant objects. 2 spatially"
+                " distant objects may be the upper left and lower right pixels in an"
+                " image. Convolutional layers can be used for tasks like image"
+                " recognition where we can reduce spatial regions to abstract"
+                " components. Convolutional layers are an optimization, they can only"
+                " perform a subset of what dense layers can. They are a hack using"
+                " human intuition."
+            )
+        ) as tracker:
+            self.play(
+                Write(image),
+                Write(filter_group[0:2]),
+                Write(filter_group[3:5]),
+                Write(receptive_field.get_brackets()),
+                Write(feature.get_brackets()),
+                Write(img_label),
+                Write(filter_label),
+                Write(feature_label),
+                Write(filter_rows),
+                Write(filter_cols),
+                Write(equation),
+            )
 
         written = []
 
@@ -191,104 +210,118 @@ class EpisodeScene(Scene):
             height=element_size[1],
             width=element_size[0],
         )
+        with self.voiceover(
+            text=(
+                "Convolution forepropgation has 4 components, the input, the output,"
+                " the filter, sometimes referred to as the kernel, and the bias. The"
+                " operation moves the filter across the input to produce each value in"
+                " the output. For each output value it multiplies every value in the"
+                " input by the respective value in the filter, sums these values, then"
+                " adds the bias."
+            )
+        ) as tracker:
+            for yi in range(0, feature_size[1]):
+                for xi in range(0, feature_size[0]):
+                    # Gets index in image
+                    image_index = xi + yi * image_size[0]
 
-        for yi in range(0, feature_size[1]):
-            for xi in range(0, feature_size[0]):
-                # Gets index in image
-                image_index = xi + yi * image_size[0]
-
-                # Gets and sets values in local receptive field
-                receptive_field_values = [
-                    [
-                        image_values[(xi + x) + (yi + y) * image_size[0]]
-                        for x in range(filter_size[0])
-                    ]
-                    for y in range(filter_size[1])
-                ]
-                new_receptive_field = (
-                    Matrix(receptive_field_values).set_color(YELLOW).scale(scale)
-                )
-                new_receptive_field.move_to(receptive_field.get_center())
-
-                # Gets result and calculation string
-                multiplying = VGroup()
-                result = bias
-                for y in range(filter_size[1]):
-                    for x in range(filter_size[0]):
-                        filter_value = filter_matrix_values[x + y * filter_size[0]]
-                        image_value = image_values[(xi + x) + (yi + y) * image_size[0]]
-
-                        multiplying.add(MathTex("("))
-                        multiplying.add(MathTex(str(filter_value)).set_color(BLUE))
-                        multiplying.add(MathTex("\\cdot"))
-                        multiplying.add(MathTex(str(image_value)).set_color(YELLOW))
-                        multiplying.add(MathTex(")+"))
-
-                        result += filter_value * image_value
-                        if x == filter_size[0] - 1 and y == filter_size[1] - 1:
-                            multiplying.add(MathTex(str(bias)).set_color(RED))
-                            multiplying.add(MathTex(f"={result}"))
-
-                multiplying.arrange(RIGHT, buff=0.1)
-                multiplying.scale(scale)
-                feature_index = xi + yi * feature_size[0]  # Gets index in feature
-
-                if xi == 0 and yi == 0:
-                    # Sets highlight
-                    highlight.move_to(image[0][image_index].get_center() + shift)
-                    output_highlight.move_to(feature[0][feature_index].get_center())
-
-                    # Sets calculation string
-                    calculation = multiplying
-                    calculation.move_to(
-                        equation.get_center()
-                        - [
-                            0,
-                            equation.get_height() / 2
-                            + calculation.get_height() / 2
-                            + label_spacing,
-                            0,
+                    # Gets and sets values in local receptive field
+                    receptive_field_values = [
+                        [
+                            image_values[(xi + x) + (yi + y) * image_size[0]]
+                            for x in range(filter_size[0])
                         ]
+                        for y in range(filter_size[1])
+                    ]
+                    new_receptive_field = (
+                        Matrix(receptive_field_values).set_color(YELLOW).scale(scale)
                     )
+                    new_receptive_field.move_to(receptive_field.get_center())
 
-                    receptive_field = new_receptive_field
+                    # Gets result and calculation string
+                    multiplying = VGroup()
+                    result = bias
+                    for y in range(filter_size[1]):
+                        for x in range(filter_size[0]):
+                            filter_value = filter_matrix_values[x + y * filter_size[0]]
+                            image_value = image_values[
+                                (xi + x) + (yi + y) * image_size[0]
+                            ]
 
-                    # Writes
-                    self.play(
-                        Write(highlight),
-                        Write(receptive_field.get_entries()),
-                        Write(calculation),
-                        Write(output_highlight),
-                    )
-                else:
-                    # Sets highlight
-                    new_highlight = highlight.copy()
-                    new_highlight.move_to(image[0][image_index].get_center() + shift)
-                    new_output_highlight = output_highlight.copy()
-                    new_output_highlight.move_to(feature[0][feature_index].get_center())
+                            multiplying.add(MathTex("("))
+                            multiplying.add(MathTex(str(filter_value)).set_color(BLUE))
+                            multiplying.add(MathTex("\\cdot"))
+                            multiplying.add(MathTex(str(image_value)).set_color(YELLOW))
+                            multiplying.add(MathTex(")+"))
 
-                    # Sets calculation string
-                    new_calculation = multiplying
-                    new_calculation.move_to(calculation.get_center())
+                            result += filter_value * image_value
+                            if x == filter_size[0] - 1 and y == filter_size[1] - 1:
+                                multiplying.add(MathTex(str(bias)).set_color(RED))
+                                multiplying.add(MathTex(f"={result}"))
 
-                    # Writes
-                    self.play(
-                        Transform(highlight, new_highlight),
-                        Transform(
-                            receptive_field.get_entries(),
-                            new_receptive_field.get_entries(),
-                        ),
-                        Transform(calculation, new_calculation),
-                        Transform(output_highlight, new_output_highlight),
-                    )
+                    multiplying.arrange(RIGHT, buff=0.1)
+                    multiplying.scale(scale)
+                    feature_index = xi + yi * feature_size[0]  # Gets index in feature
 
-                # Sets and writes result
-                result_object = MathTex(str(result)).scale(scale)
-                result_object.move_to(feature[0][feature_index].get_center())
-                self.play(Write(result_object))
-                written.append(result_object)
+                    if xi == 0 and yi == 0:
+                        # Sets highlight
+                        highlight.move_to(image[0][image_index].get_center() + shift)
+                        output_highlight.move_to(feature[0][feature_index].get_center())
 
-                self.wait()
+                        # Sets calculation string
+                        calculation = multiplying
+                        calculation.move_to(
+                            equation.get_center()
+                            - [
+                                0,
+                                equation.get_height() / 2
+                                + calculation.get_height() / 2
+                                + label_spacing,
+                                0,
+                            ]
+                        )
+
+                        receptive_field = new_receptive_field
+
+                        # Writes
+                        self.play(
+                            Write(highlight),
+                            Write(receptive_field.get_entries()),
+                            Write(calculation),
+                            Write(output_highlight),
+                        )
+                    else:
+                        # Sets highlight
+                        new_highlight = highlight.copy()
+                        new_highlight.move_to(
+                            image[0][image_index].get_center() + shift
+                        )
+                        new_output_highlight = output_highlight.copy()
+                        new_output_highlight.move_to(
+                            feature[0][feature_index].get_center()
+                        )
+
+                        # Sets calculation string
+                        new_calculation = multiplying
+                        new_calculation.move_to(calculation.get_center())
+
+                        # Writes
+                        self.play(
+                            Transform(highlight, new_highlight),
+                            Transform(
+                                receptive_field.get_entries(),
+                                new_receptive_field.get_entries(),
+                            ),
+                            Transform(calculation, new_calculation),
+                            Transform(output_highlight, new_output_highlight),
+                        )
+
+                    # Sets and writes result
+                    result_object = MathTex(str(result)).scale(scale)
+                    result_object.move_to(feature[0][feature_index].get_center())
+                    self.play(Write(result_object))
+                    written.append(result_object)
+                    self.wait()
 
         written = VGroup(*written)
 
@@ -694,6 +727,8 @@ class EpisodeScene(Scene):
             Write(new_brackets),
         )
 
+        self.wait(6)
+
         # Sets element size and highlight shift
         element_size = [
             filter_matrix.get_width() / filter_size[0],
@@ -867,9 +902,10 @@ class EpisodeScene(Scene):
             Uncreate(bias_highlight),
             Uncreate(entries),
         )
-        self.wait()
 
     def construct(self):
+        self.set_speech_service(GTTSService())
+
         self.play_intro()
 
         (
@@ -887,30 +923,72 @@ class EpisodeScene(Scene):
             bias_item,
         ) = self.play_conv()
 
-        image = self.play_padding_conv(
-            image,
-            feature,
-            filter_matrix,
-            receptive_field,
-            image_size,
-            filter_size,
-            image_values,
-            filter_matrix_values,
-            equation,
-            bias,
-        )
+        with self.voiceover(
+            text=(
+                "As the filter grows in size it will reduce the impact that values on"
+                " the edges of the input can have on the output. Through multiple"
+                " layers this will apply an implicit weighting in favor of values"
+                " closer to the centre of the input. To counteract this we can apply"
+                " zero padding to the input. Zero padding involves adding zero values"
+                " to the edges of the input such that the output is the same size as"
+                " the non-padded input."
+            )
+        ) as tracker:
+            image = self.play_padding_conv(
+                image,
+                feature,
+                filter_matrix,
+                receptive_field,
+                image_size,
+                filter_size,
+                image_values,
+                filter_matrix_values,
+                equation,
+                bias,
+            )
 
-        self.play_channels_conv(
-            image,
-            feature,
-            filter_matrix,
-            receptive_field,
-            image_values,
-            filter_matrix_values,
-            equation,
-            written,
-            bias,
-            bias_item,
-        )
+        with self.voiceover(
+            text=(
+                "To handle more complex data, convolutional layers can incorporate"
+                " additional components. The 1st additional component is channels,"
+                " these represent an additional dimension in the input, this can be"
+                " used to handle RGB channels in an image. The 2nd additional component"
+                " is allowing a variable number of filters, different filters can be"
+                " used to search for different elements in an input, in an image 1"
+                " filter may search for vertical lines while another may search for"
+                " horizontal lines."
+            )
+        ) as tracker:
+            self.play_channels_conv(
+                image,
+                feature,
+                filter_matrix,
+                receptive_field,
+                image_values,
+                filter_matrix_values,
+                equation,
+                written,
+                bias,
+                bias_item,
+            )
 
+        self.wait(3)
+        with self.voiceover(
+            text=(
+                "2 topics I've missed in this video are variable stride and variable"
+                " dilation, it is likely you will come across these when using a neural"
+                " network, they are not notably more complex than anything I've covered"
+                " in this video, they are just another optimization applying human"
+                " intuition. I've excluded them for the sake of brevity."
+            )
+        ) as tracker:
+            pass
+        self.wait(1)
+        with self.voiceover(
+            text=(
+                "If you where able to follow along with this video you should now have"
+                " a fundamental grasp of forepropagation with convolutional layers."
+            )
+        ) as tracker:
+            pass
         self.wait(3)

@@ -35,7 +35,8 @@ class EpisodeScene(Scene):
         subtitle.shift(UP_SHIFT * UP)
 
         equation = MathTex(
-            r"\max(\{{in_{ih+m,jw+n} | n\cup m\subseteq \mathbb{Z}, 1 \leq m \leq h, 1 \leq n \leq w}\}) = out_{i+1,j+1}"
+            r"\max(\{{in_{ih+m,jw+n} | n\cup m\subseteq \mathbb{Z}, 1 \leq m \leq h, 1"
+            r" \leq n \leq w}\}) = out_{i+1,j+1}"
         )
         equation.scale(scale)
 

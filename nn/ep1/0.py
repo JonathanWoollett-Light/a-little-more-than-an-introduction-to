@@ -220,42 +220,32 @@ class EpisodeScene(Scene):
 
         # Sets up vague value matrices
         # -----------------------------
-        z1 = MathTex(
-            r"""
+        z1 = MathTex(r"""
         \begin{bmatrix}
             z_{1,1} \\[6pt] z_{1,2} \\[6pt] z_{1,3}
         \end{bmatrix}
-        """
-        )
-        z2 = MathTex(
-            r"""
+        """)
+        z2 = MathTex(r"""
         \begin{bmatrix}
             z_{2,1} \\[6pt] z_{2,2}
         \end{bmatrix}
-        """
-        )
+        """)
 
-        a1 = MathTex(
-            r"""
+        a1 = MathTex(r"""
         \begin{bmatrix}
             a_{1,1} \\[6pt] a_{1,2}
         \end{bmatrix}
-        """
-        )
-        a2 = MathTex(
-            r"""
+        """)
+        a2 = MathTex(r"""
         \begin{bmatrix}
             a_{2,1} \\[6pt] a_{2,2} \\[6pt] a_{2,3}
         \end{bmatrix}
-        """
-        )
-        a3 = MathTex(
-            r"""
+        """)
+        a3 = MathTex(r"""
         \begin{bmatrix}
             a_{3,1} \\[6pt] a_{3,2}
         \end{bmatrix}
-        """
-        )
+        """)
 
         w1 = MathTex(
             r"""

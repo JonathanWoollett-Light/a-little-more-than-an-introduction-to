@@ -27,7 +27,10 @@ class EpisodeScene(Scene):
                 r"\delta^L = \nabla_a C \odot A'(z^L)",
                 r"\delta^l = a",
                 r"\frac{\partial C}{\partial b^l} = \delta^l",
-                r"\frac{\partial C}{\partial w^l_{m,n}} = \delta_l \odot \frac{\partial z^l}{\partial w^l}",  #
+                (  #
+                    r"\frac{\partial C}{\partial w^l_{m,n}} = \delta_l \odot"
+                    r" \frac{\partial z^l}{\partial w^l}"
+                ),
             ],
             wheres=[r"\delta_l = \frac{\partial C}{\partial z^l}"],
             scale=0.5,

@@ -9,4 +9,4 @@ jobs:
     - name: Black
       run: |
         pip install black
-        black --check .
+        black --preview --check .
