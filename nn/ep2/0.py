@@ -841,8 +841,7 @@ class EpisodeScene(VoiceoverScene):
                             equation.get_center()
                             - [
                                 0,
-                                equation.get_height() / 2
-                                + calculation.get_height() / 2
+                                calculation.get_height() / 2
                                 + label_spacing,
                                 0,
                             ]
