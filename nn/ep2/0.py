@@ -12,8 +12,8 @@ from ecommon import (
 from manim import *
 
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.gtts import GTTSService
-
+# from manim_voiceover.services.gtts import GTTSService
+from manim_voiceover.services.recorder import RecorderService
 
 # Convolution
 class EpisodeScene(VoiceoverScene):
@@ -22,8 +22,8 @@ class EpisodeScene(VoiceoverScene):
 
         with self.voiceover(
             text=(
-                "In this video I am going to cover foreprogation in convolutional"
-                " layers."
+                "In this video I am going to cover foreprogation in a convolutional"
+                " layer."
             )
         ) as tracker:
             self.play(Write(title_scene))
@@ -174,16 +174,20 @@ class EpisodeScene(VoiceoverScene):
         )
         with self.voiceover(
             text=(
-                "Large dense layers are slow. Convolutional layers are often more"
-                " performant. Convolutional layers embed data in how they operate. It"
-                " is like a dense layer removing connections between layers that are"
-                " between neurons that represent spatially distant objects. 2 spatially"
-                " distant objects may be the upper left and lower right pixels in an"
-                " image. Convolutional layers can be used for tasks like image"
-                " recognition where we can reduce spatial regions to abstract"
-                " components. Convolutional layers are an optimization, they can only"
-                " perform a subset of what dense layers can. They are a hack using"
-                " human intuition."
+                "In previous episodes I covered forepropagation and backpropagation in"
+                " neural networks with dense layers, these layers work with every input"
+                " connected to every output, this allows for a huge range of"
+                " functionality but becomes very expensive to compute at larger"
+                " sizes.Convolutional layers are an optimization to massively improve"
+                " performance. A dense layer would need to train its weights and biases"
+                " to learn that spatially close inputs are more significantly"
+                " correlated, spatially close inputs might be pixels in an image that"
+                " are close together, in convolutional layer this comes as standard"
+                " embedded in how a operate Convolutional layers can be used for tasks"
+                " like image recognition where we can reduce spatial regions to"
+                " abstract components. Dense layers are the fundamental operation while"
+                " convolutional layers are an optimization, they are a hack using human"
+                " intuition."
             )
         ) as tracker:
             self.play(
@@ -841,8 +845,7 @@ class EpisodeScene(VoiceoverScene):
                             equation.get_center()
                             - [
                                 0,
-                                calculation.get_height() / 2
-                                + label_spacing,
+                                calculation.get_height() / 2 + label_spacing,
                                 0,
                             ]
                         )
@@ -903,7 +906,8 @@ class EpisodeScene(VoiceoverScene):
         )
 
     def construct(self):
-        self.set_speech_service(GTTSService())
+        # self.set_speech_service(GTTSService())
+        self.set_speech_service(RecorderService())
 
         self.play_intro()
 
@@ -955,7 +959,10 @@ class EpisodeScene(VoiceoverScene):
                 " is allowing a variable number of filters, different filters can be"
                 " used to search for different elements in an input, in an image 1"
                 " filter may search for vertical lines while another may search for"
-                " horizontal lines."
+                " horizontal lines. In practice in real models these elements are"
+                " unlikely to be so simple, they are likely to be very abstract and it"
+                " will often be difficult to make any meaningful inference about what"
+                " they represent."
             )
         ) as tracker:
             self.play_channels_conv(
