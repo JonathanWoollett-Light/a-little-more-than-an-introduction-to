@@ -16,7 +16,6 @@ from manim_voiceover import VoiceoverScene
 # from manim_voiceover.services.gtts import GTTSService
 from manim_voiceover.services.recorder import RecorderService
 
-
 # Convolution
 class EpisodeScene(VoiceoverScene):
     def play_intro(self):
