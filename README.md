@@ -17,3 +17,9 @@ sudo apt install tex-live-latex-extra
 ```bash
 manim -pql 0.py EpisodeScene
 ```
+
+
+```bash
+choco install manimce
+choco install manim-latex
+```
